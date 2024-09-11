@@ -9,6 +9,9 @@ const deviceName = ref([]);
 const empp = ref([]);
 const emp_img = ref([]);
 const assetAll = ref([]);
+const selectedDept = ref("");
+const selectedEmp = ref("");
+const empAsset = ref("");
 
 const form = ref({
     department: "",
@@ -39,16 +42,50 @@ const getData = async () => {
     }
 };
 
-// const filteredData = computed(() => {
-//     return assetAll.value.filter((item) => {
-//         return (
-//             (selectedType.value === "" ||
-//                 item.leave_type.Name === selectedType.value) &&
-//             (selectedStatus.value === "" ||
-//                 item.Status === selectedStatus.value)
-//         );
-//     });
-// });
+watch(
+    () => empAsset,
+    (item) => {
+        if (item) {
+            form.value.department = item.Dept_Name || "";
+            form.value.employee_Id = item.Full_Name || "";
+            form.value.device_id = item.Device_Name || "";
+            form.value.date = item.Date || "";
+            form.value.quantity = item.Quantity || "";
+            form.value.serialNumber = item.Serial_Number || "";
+        }
+    },
+    { immediate: true }
+);
+
+const filteredData = computed(() => {
+    return assetAll.value.filter((item) => {
+        return (
+            (selectedDept.value === "" ||
+                item.Dept_Name === selectedDept.value) &&
+            (selectedEmp.value === "" || item.Full_Name === selectedEmp.value)
+        );
+    });
+});
+
+function editEmpAsset (id) {
+    const response = api.get(`/editEmpAsset/${id}`);
+    // empAsset.value =  response.data;
+    console.log(response.data);
+}
+
+// const editEmpAsset = async (id) => {
+//   try {
+//     const response = await api.get(`/editEmpAsset/${id}`);
+//     if (response.ok) {
+//       empAsset.value = await response.json();
+//       console.log(response.data);
+//     } else {
+//       console.error("Error fetching employee asset data:", response.status);
+//     }
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
 
 // Fetch employees based on department selection
 const getEmployee = async (id) => {
@@ -177,7 +214,7 @@ onMounted(() => getData());
                                                     <label>Device Name</label>
                                                     <select
                                                         class="form-control"
-                                                        v-model = "form.device_id"
+                                                        v-model="form.device_id"
                                                     >
                                                         <option
                                                             selected
@@ -190,7 +227,9 @@ onMounted(() => getData());
                                                             :key="device.id"
                                                             :value="device.id"
                                                         >
-                                                            {{ device.Device_Name }}
+                                                            {{
+                                                                device.Device_Name
+                                                            }}
                                                         </option>
                                                     </select>
                                                 </div>
@@ -201,7 +240,7 @@ onMounted(() => getData());
                                                     <input
                                                         type="date"
                                                         class="form-control"
-                                                        v-model = "form.date"
+                                                        v-model="form.date"
                                                     />
                                                 </div>
                                             </div>
@@ -213,7 +252,7 @@ onMounted(() => getData());
                                                     <input
                                                         type="text"
                                                         class="form-control"
-                                                        v-model = "form.quantity"
+                                                        v-model="form.quantity"
                                                     />
                                                 </div>
                                             </div>
@@ -223,7 +262,9 @@ onMounted(() => getData());
                                                     <input
                                                         type="text"
                                                         class="form-control"
-                                                        v-model = "form.serialNumber"
+                                                        v-model="
+                                                            form.serialNumber
+                                                        "
                                                     />
                                                 </div>
                                             </div>
@@ -271,21 +312,33 @@ onMounted(() => getData());
                     </div>
 
                     <div class="row d-flex justify-content-end">
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <label for="exampleInputEmail1">Department</label>
-                            <select v-model="selectedType" class="form-control">
+                            <select v-model="selectedDept" class="form-control">
                                 <option value="">All Department</option>
-                                <option value="Casual">Casual</option>
+                                <option
+                                    v-for="dept in assetAll"
+                                    :key="dept.id"
+                                    :value="dept.Dept_Name"
+                                >
+                                    {{ dept.Dept_Name }}
+                                </option>
                             </select>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <label for="exampleInputEmail1">Employee</label>
                             <select
-                                v-model="selectedStatus"
+                                v-model="selectedEmp"
                                 class="form-control"
                             >
                                 <option value="">All Employee</option>
-                                <option value="Pending">Pending</option>
+                                <option
+                                    v-for="emp in assetAll"
+                                    :key="emp.id"
+                                    :value="emp.Full_Name"
+                                >
+                                    {{ emp.Full_Name }}
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -307,45 +360,29 @@ onMounted(() => getData());
                             <tbody>
                                 <tr
                                     class="ver-align"
-                                    v-for="(l, index) in filteredData"
-                                    :key="l.id"
+                                    v-for="(item, index) in filteredData"
+                                    :key="item.id"
                                 >
                                     <td>{{ index + 1 }}</td>
-                                    <td>{{ l.From_Date }}</td>
-                                    <td>{{ l.To_Date }}</td>
+                                    <td>{{ item.Dept_Name }}</td>
+                                    <td>{{ item.Full_Name }}</td>
                                     <td>
-                                        {{ l.daysBetween }}
+                                        {{ item.Device_Name }}
                                     </td>
-                                    <td>{{ l.leave_type.Name }}</td>
-                                    <td>{{ l.Status }}</td>
-                                    <td v-if="l.Attachment_Url !== '/storage/'">
-                                        <button
-                                            @click="
-                                                openAttachment(l.Attachment_Url)
-                                            "
-                                            class="custom-btn btn-15 mx-2"
-                                        >
-                                            <i
-                                                class="fa-solid fa-file-arrow-down"
-                                            ></i>
-                                        </button>
-                                    </td>
-                                    <td v-else></td>
-                                    <td>
+                                    <td>{{ item.Date }}</td>
+                                    <td class="text-center">{{ item.Quantity }}</td>
+                                    <td>{{ item.Serial_Number }}</td>
+                                    
+                                    <td class="text-center">
                                         <button
                                             class="custom-btn btn-13 mx-1 px-1"
-                                            @click="leaveApproved(l.id)"
+                                            @click="editEmpAsset(item.id)"
                                         >
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <button
-                                            class="custom-btn btn-12 mx-1"
-                                            @click="leaveReject(l.id)"
-                                        >
-                                            <i class="fa-solid fa-xmark"></i>
+                                            <i class="fa-regular fa-pen-to-square"></i>
                                         </button>
                                     </td>
                                 </tr>
+
                             </tbody>
                         </table>
                     </div>

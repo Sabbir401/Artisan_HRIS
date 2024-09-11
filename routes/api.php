@@ -179,6 +179,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/employee-asset', [EmployeeAssetController::class, "store"]);
     Route::get('/employee-asset', [EmployeeAssetController::class, "index"]);
+    Route::get('/editEmpAsset/{id}', [EmployeeAssetController::class, "editEmpAsset"]);
 
 
 
