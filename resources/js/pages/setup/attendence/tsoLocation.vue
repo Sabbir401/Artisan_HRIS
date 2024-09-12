@@ -57,8 +57,8 @@ const latitude = ref(23.7791053);
 const longitude = ref(90.4148914);
 const locationDate = ref();
 
-const showInMap = async (latitude, longitude) => {
 
+const showInMap = async (latitude, longitude) => {
     const location = { lat: latitude, lng: longitude };
     const map = new google.maps.Map(document.getElementById("map"), {
         center: location,
@@ -68,7 +68,28 @@ const showInMap = async (latitude, longitude) => {
         position: location,
         map: map,
     });
-}
+
+    // // Initialize the geocoder
+    // const geocoder = new google.maps.Geocoder();
+
+    // // Perform reverse geocoding to get the location name
+    // geocoder.geocode({ location: location }, (results, status) => {
+    //     if (status === "OK") {
+    //         if (results[0]) {
+    //             const locationName = results[0].formatted_address;
+    //             console.log("Location Name:", locationName);
+    //             // You can display the location name in the UI if desired
+    //             alert(`Location: ${locationName}`);
+    //         } else {
+    //             console.log("No results found");
+    //         }
+    //     } else {
+    //         console.log("Geocoder failed due to: " + status);
+    //     }
+    // });
+};
+
+
 
 const getData = async () => {
     const response = await api.get("/location");

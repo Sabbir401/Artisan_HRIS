@@ -27,7 +27,7 @@ const getData = async () => {
     try {
         const [responseDept, responseDevice, responseAll] = await axios.all([
             api.get("/department"),
-            api.get("/get-asset"),
+            api.get("/allAsset"),
             api.get("/employee-asset"),
         ]);
         department.value = responseDept.data;
@@ -46,15 +46,16 @@ watch(
     () => empAsset,
     (item) => {
         if (item) {
-            form.value.department = item.Dept_Name || "";
-            form.value.employee_Id = item.Full_Name || "";
-            form.value.device_id = item.Device_Name || "";
-            form.value.date = item.Date || "";
-            form.value.quantity = item.Quantity || "";
-            form.value.serialNumber = item.Serial_Number || "";
+            form.value.department = item.value.Dept_Id || "";
+            getEmployee(item.value.Dept_Id);
+            form.value.employee_Id = item.value.Emp_Id || "";
+            form.value.device_id = item.value.Asset_Id || "";
+            form.value.date = item.value.Date || "";
+            form.value.quantity = item.value.Quantity || "";
+            form.value.serialNumber = item.value.Serial_Number || "";
         }
     },
-    { immediate: true }
+    { deep: true }
 );
 
 const filteredData = computed(() => {
@@ -67,25 +68,10 @@ const filteredData = computed(() => {
     });
 });
 
-function editEmpAsset (id) {
-    const response = api.get(`/editEmpAsset/${id}`);
-    // empAsset.value =  response.data;
-    console.log(response.data);
-}
-
-// const editEmpAsset = async (id) => {
-//   try {
-//     const response = await api.get(`/editEmpAsset/${id}`);
-//     if (response.ok) {
-//       empAsset.value = await response.json();
-//       console.log(response.data);
-//     } else {
-//       console.error("Error fetching employee asset data:", response.status);
-//     }
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// };
+const editEmpAsset = async (id) => {
+    const response = await api.get(`/editEmpAsset/${id}`);
+    empAsset.value = response.data;
+};
 
 // Fetch employees based on department selection
 const getEmployee = async (id) => {
@@ -111,12 +97,15 @@ const resetForm = () => {
     Object.keys(form.value).forEach((key) => {
         if (typeof form.value[key] === "string") {
             form.value[key] = "";
+        } else {
+            form.value[key] = null;
         }
+        empAsset.value = "";
     });
 };
 
 // Handle form submission
-const submit = async () => {
+const create = async () => {
     try {
         const response = await api.post(`/employee-asset`, form.value);
         if (response.data.success) {
@@ -124,13 +113,44 @@ const submit = async () => {
             Swal.fire({
                 position: "middle",
                 icon: "success",
-                title: "Employee permission has been saved",
+                title: "Asset Information has been saved",
                 showConfirmButton: false,
                 timer: 1500,
             });
         }
+        getData();
     } catch (error) {
         console.error("Error submitting attendance:", error);
+    }
+};
+
+const update = async () => {
+    try {
+        const response = await api.put(
+            `/empAsset/${empAsset.value.id}`,
+            form.value
+        );
+        if (response.data.success) {
+            resetForm();
+            Swal.fire({
+                position: "middle",
+                icon: "success",
+                title: "Asset Information Updated",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        }
+        getData();
+    } catch (error) {
+        console.error("Error submitting attendance:", error);
+    }
+};
+
+const submit = () => {
+    if (empAsset.value === "") {
+        create();
+    } else {
+        update();
     }
 };
 
@@ -294,8 +314,8 @@ onMounted(() => getData());
                     </div>
                 </div>
                 <div class="col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
+                    <div class="card img-card">
+                        <div class="card-body img-card-body">
                             <img
                                 :src="emp_img ? emp_img.img_url : ''"
                                 class="card-img"
@@ -317,27 +337,24 @@ onMounted(() => getData());
                             <select v-model="selectedDept" class="form-control">
                                 <option value="">All Department</option>
                                 <option
-                                    v-for="dept in assetAll"
+                                    v-for="dept in department"
                                     :key="dept.id"
-                                    :value="dept.Dept_Name"
+                                    :value="dept.Name"
                                 >
-                                    {{ dept.Dept_Name }}
+                                    {{ dept.Name }}
                                 </option>
                             </select>
                         </div>
                         <div class="col-lg-3">
                             <label for="exampleInputEmail1">Employee</label>
-                            <select
-                                v-model="selectedEmp"
-                                class="form-control"
-                            >
+                            <select v-model="selectedEmp" class="form-control">
                                 <option value="">All Employee</option>
                                 <option
-                                    v-for="emp in assetAll"
-                                    :key="emp.id"
-                                    :value="emp.Full_Name"
+                                    v-for="e in empp"
+                                    :key="e.id"
+                                    :value="e.Full_Name"
                                 >
-                                    {{ emp.Full_Name }}
+                                    {{ e.Full_Name }}
                                 </option>
                             </select>
                         </div>
@@ -364,25 +381,30 @@ onMounted(() => getData());
                                     :key="item.id"
                                 >
                                     <td>{{ index + 1 }}</td>
-                                    <td>{{ item.Dept_Name }}</td>
-                                    <td>{{ item.Full_Name }}</td>
+                                    <td>{{ item ? item.Dept_Name : "" }}</td>
+                                    <td>{{ item ? item.Full_Name : "" }}</td>
                                     <td>
-                                        {{ item.Device_Name }}
+                                        {{ item ? item.Device_Name : "" }}
                                     </td>
-                                    <td>{{ item.Date }}</td>
-                                    <td class="text-center">{{ item.Quantity }}</td>
-                                    <td>{{ item.Serial_Number }}</td>
-                                    
+                                    <td>{{ item ? item.Date : "" }}</td>
+                                    <td class="text-center">
+                                        {{ item ? item.Quantity : "" }}
+                                    </td>
+                                    <td>
+                                        {{ item ? item.Serial_Number : "" }}
+                                    </td>
+
                                     <td class="text-center">
                                         <button
                                             class="custom-btn btn-13 mx-1 px-1"
                                             @click="editEmpAsset(item.id)"
                                         >
-                                            <i class="fa-regular fa-pen-to-square"></i>
+                                            <i
+                                                class="fa-regular fa-pen-to-square"
+                                            ></i>
                                         </button>
                                     </td>
                                 </tr>
-
                             </tbody>
                         </table>
                     </div>
@@ -393,16 +415,16 @@ onMounted(() => getData());
 </template>
 
 <style scoped>
-.card {
-    height: 320px;
-    max-height: 320px;
+.img-card {
+    height: 328px;
+    max-height: 328px;
     overflow: hidden; /* Ensures that any overflow content is hidden */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.card-body {
+.img-card-body {
     width: 100%;
     height: 100%;
 }

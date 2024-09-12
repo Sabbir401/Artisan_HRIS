@@ -130,12 +130,12 @@ const routes = [
         },
     },
     {
-        path: "/setup/employee-assets",
-        name: "EmployeeAssets",
-        component: () => import('./pages/setup/assets/employeeAssets.vue'),
+        path: "/setup/emp-assets-info",
+        name: "EmpAssetsInfo",
+        component: () => import('./pages/setup/assets/empAssetInfo.vue'),
         meta: {
             requireAuth: true,
-            pageId: 19,
+            pageId: 20,
         },
     },
     {

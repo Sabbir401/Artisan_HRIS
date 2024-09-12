@@ -177,9 +177,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/device-type', [AssetController::class, "getDeviceTypes"]);
     Route::delete('/delete-asset/{id}', [AssetController::class, 'deleteAsset']);
 
+    Route::get('/allAsset', [EmployeeAssetController::class, "allAsset"]);
     Route::post('/employee-asset', [EmployeeAssetController::class, "store"]);
     Route::get('/employee-asset', [EmployeeAssetController::class, "index"]);
     Route::get('/editEmpAsset/{id}', [EmployeeAssetController::class, "editEmpAsset"]);
+    Route::put('/empAsset/{id}', [EmployeeAssetController::class, "update"]);
 
 
 
