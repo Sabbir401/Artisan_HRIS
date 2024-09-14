@@ -71,7 +71,7 @@ const filteredData = computed(() => {
 const editEmpAsset = async (id) => {
     const response = await api.get(`/editEmpAsset/${id}`);
     empAsset.value = response.data;
-};
+}; 
 
 // Fetch employees based on department selection
 const getEmployee = async (id) => {

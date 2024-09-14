@@ -43,8 +43,6 @@ class EmployeeAssetController extends Controller
 
 
     public function editEmpAsset($id){
-        // $employee_assets = employee_asset::with('employee', 'employee.official.department')->find($id);
-        // return response()->json($employee_assets);
         $employee_assets = employee_asset::select('employee_assets.id', 'departments.id as Dept_Id', 'employees.id as Emp_Id', 'assets.id as Asset_Id', 'employee_assets.Date', 'employee_assets.Quantity', 'employee_assets.Serial_Number')
         ->join('employees', 'employees.id', '=', 'employee_assets.EID')
         ->join('officials', 'employees.id', '=', 'officials.EID')
