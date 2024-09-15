@@ -86,15 +86,6 @@ const routes = [
     ],
     },
     {
-        path: "/test",
-        name: "Test",
-        component: () => import('./pages/setup/employee/test.vue'),
-        meta: {
-            requireAuth: true,
-        },
-    },
-    
-    {
         path: "/setup/attendence/tso-location",
         name: "TsoLocation",
         component: () => import('./pages/setup/attendence/tsoLocation.vue'),

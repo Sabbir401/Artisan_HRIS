@@ -5,12 +5,12 @@ import Swal from "sweetalert2";
 
 const error = ref([]);
 const department = ref([]);
-const deviceName = ref([]);
 const empp = ref([]);
 const emp_img = ref([]);
 const assetAll = ref([]);
 const selectedDept = ref("");
 const selectedEmp = ref("");
+const empAllAsset = ref([]);
 const empAsset = ref("");
 
 const form = ref({
@@ -25,14 +25,14 @@ const form = ref({
 // Fetch department and navigation data
 const getData = async () => {
     try {
-        const [responseDept, responseDevice, responseAll] = await axios.all([
+        const [responseDept, responseAll, responseEmpAll] = await axios.all([
             api.get("/department"),
             api.get("/allAsset"),
             api.get("/employee-asset"),
         ]);
         department.value = responseDept.data;
-        deviceName.value = responseDevice.data;
         assetAll.value = responseAll.data;
+        empAllAsset.value = responseEmpAll.data;
     } catch (err) {
         if (err.response && err.response.status === 401) {
             router.push({ name: "Login" });
@@ -59,10 +59,10 @@ watch(
 );
 
 const filteredData = computed(() => {
-    return assetAll.value.filter((item) => {
+    return empAllAsset.value.filter((item) => {
         return (
             (selectedDept.value === "" ||
-                item.Dept_Name === selectedDept.value) &&
+                item.Dept_Id === selectedDept.value) &&
             (selectedEmp.value === "" || item.Full_Name === selectedEmp.value)
         );
     });
@@ -71,7 +71,7 @@ const filteredData = computed(() => {
 const editEmpAsset = async (id) => {
     const response = await api.get(`/editEmpAsset/${id}`);
     empAsset.value = response.data;
-}; 
+};
 
 // Fetch employees based on department selection
 const getEmployee = async (id) => {
@@ -165,7 +165,7 @@ onMounted(() => getData());
                     <div class="card">
                         <div class="card-body">
                             <div class="text-center">
-                                <h1 class="mb-5">Employee Asset Infromation</h1>
+                                <h1 class="mb-2">Employee Asset Infromation</h1>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12 col-sm-12 mb-3">
@@ -243,7 +243,7 @@ onMounted(() => getData());
                                                             select
                                                         </option>
                                                         <option
-                                                            v-for="device in deviceName"
+                                                            v-for="device in assetAll"
                                                             :key="device.id"
                                                             :value="device.id"
                                                         >
@@ -325,21 +325,22 @@ onMounted(() => getData());
                 </div>
             </div>
 
-            <div class="card mt-4">
+            <div class="card mt-2">
                 <div class="card-body">
                     <div class="text-center">
                         <h1 class="mb-5">Asset Summary</h1>
                     </div>
 
-                    <div class="row d-flex justify-content-end">
+                    <div class="row d-flex justify-content-end mb-3">
                         <div class="col-lg-3">
                             <label for="exampleInputEmail1">Department</label>
-                            <select v-model="selectedDept" class="form-control">
+                            <select v-model="selectedDept" class="form-control"
+                            @change="getEmployee(selectedDept)">
                                 <option value="">All Department</option>
                                 <option
                                     v-for="dept in department"
                                     :key="dept.id"
-                                    :value="dept.Name"
+                                    :value="dept.id"
                                 >
                                     {{ dept.Name }}
                                 </option>
@@ -360,53 +361,71 @@ onMounted(() => getData());
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>S/N</th>
-                                    <th>Department</th>
-                                    <th>Employee Name</th>
-                                    <th>Device Name</th>
-                                    <th>Date</th>
-                                    <th>Quantity</th>
-                                    <th>Serial Number</th>
-                                    <th>Operation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    class="ver-align"
-                                    v-for="(item, index) in filteredData"
-                                    :key="item.id"
-                                >
-                                    <td>{{ index + 1 }}</td>
-                                    <td>{{ item ? item.Dept_Name : "" }}</td>
-                                    <td>{{ item ? item.Full_Name : "" }}</td>
-                                    <td>
-                                        {{ item ? item.Device_Name : "" }}
-                                    </td>
-                                    <td>{{ item ? item.Date : "" }}</td>
-                                    <td class="text-center">
-                                        {{ item ? item.Quantity : "" }}
-                                    </td>
-                                    <td>
-                                        {{ item ? item.Serial_Number : "" }}
-                                    </td>
-
-                                    <td class="text-center">
-                                        <button
-                                            class="custom-btn btn-13 mx-1 px-1"
-                                            @click="editEmpAsset(item.id)"
+                    <div class="card table-card">
+                        <div class="card-body table-card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S/N</th>
+                                            <th>Department</th>
+                                            <th>Employee Name</th>
+                                            <th>Device Name</th>
+                                            <th>Date</th>
+                                            <th>Quantity</th>
+                                            <th>Serial Number</th>
+                                            <th>Operation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            class="ver-align"
+                                            v-for="(
+                                                item, index
+                                            ) in filteredData"
+                                            :key="item.id"
                                         >
-                                            <i
-                                                class="fa-regular fa-pen-to-square"
-                                            ></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                            <td>{{ index + 1 }}</td>
+                                            <td>
+                                                {{ item ? item.Dept_Name : "" }}
+                                            </td>
+                                            <td>
+                                                {{ item ? item.Full_Name : "" }}
+                                            </td>
+                                            <td>
+                                                {{
+                                                    item ? item.Device_Name : ""
+                                                }}
+                                            </td>
+                                            <td>{{ item ? item.Date : "" }}</td>
+                                            <td class="text-center">
+                                                {{ item ? item.Quantity : "" }}
+                                            </td>
+                                            <td>
+                                                {{
+                                                    item
+                                                        ? item.Serial_Number
+                                                        : ""
+                                                }}
+                                            </td>
+
+                                            <td class="text-center">
+                                                <button
+                                                    class="custom-btn btn-13 mx-1 px-1"
+                                                    @click="
+                                                        editEmpAsset(item.id)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa-regular fa-pen-to-square"
+                                                    ></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -416,8 +435,8 @@ onMounted(() => getData());
 
 <style scoped>
 .img-card {
-    height: 328px;
-    max-height: 328px;
+    height: 300px;
+    max-height: 300px;
     overflow: hidden; /* Ensures that any overflow content is hidden */
     display: flex;
     align-items: center;
@@ -433,5 +452,13 @@ onMounted(() => getData());
     max-width: 100%;
     max-height: 100%;
     object-fit: contain; /* Ensures the entire image is visible */
+}
+
+.table-card {
+    height: 320px;
+}
+
+.table-card-body {
+    overflow: scroll;
 }
 </style>

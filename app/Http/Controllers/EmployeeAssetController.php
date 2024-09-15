@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class EmployeeAssetController extends Controller
 {
     public function index(){
-        $employee_assets = employee_asset::select('employee_assets.id', 'departments.Name as Dept_Name', 'employees.Full_Name', 'assets.Device_Name', 'employee_assets.Date', 'employee_assets.Quantity', 'employee_assets.Serial_Number')
+        $employee_assets = employee_asset::select('employee_assets.id','departments.id as Dept_Id', 'departments.Name as Dept_Name', 'employees.Full_Name', 'assets.Device_Name', 'employee_assets.Date', 'employee_assets.Quantity', 'employee_assets.Serial_Number')
         ->join('employees', 'employees.id', '=', 'employee_assets.EID')
         ->join('officials', 'employees.id', '=', 'officials.EID')
         ->join('departments', 'officials.Department_Id', '=', 'departments.id')

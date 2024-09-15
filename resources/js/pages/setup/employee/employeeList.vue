@@ -160,7 +160,7 @@ onMounted(() => getData());
                                         class="custom-btn btn-13"
                                         @click="
                                             router.push(
-                                                `/empdetails/${employee.id}`
+                                                `/setup/employee/empdetails/${employee.id}`
                                             )
                                         "
                                     >

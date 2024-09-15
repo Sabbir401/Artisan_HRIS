@@ -2,7 +2,7 @@
 import { ref, onMounted, watch, reactive } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
-import api from '@/api';
+import api from "@/api";
 
 import { useRoute } from "vue-router";
 
@@ -642,7 +642,7 @@ onMounted(() => getData());
                 <div class="col-lg-4">
                     <div class="card mb-3 img-card">
                         <div class="card-body img-card-body">
-                            <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="col-lg-12 col-md-12 col-sm-12 mb-2">
                                 <label for="exampleInputEmail1" class=""
                                     >Upload Photo
                                     <span
@@ -674,9 +674,9 @@ onMounted(() => getData());
                             <div v-else>
                                 <div v-if="empId">
                                     <img
-                                    :src="emp_img ? emp_img.img_url : ''"
-                                    alt="Image Preview"
-                                    class="card-img"
+                                        :src="emp_img ? emp_img.img_url : ''"
+                                        alt="Image Preview"
+                                        class="card-img"
                                     />
                                 </div>
                             </div>
@@ -698,26 +698,19 @@ onMounted(() => getData());
 
 <style scoped>
 .img-card {
-  height: 563px;
-  max-height: 563px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    height: 563px;
+    max-height: 563px;
 }
 
-.img-card-body {
-  width: 100%;
-  height: 100%;
+.img-card-body{
+object-fit: contain;
 }
 
-.card-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: 5px;
+img {
+    aspect-ratio: 4/3;
+    max-height: 560px;
+    object-fit: contain;
 }
-
 
 /* Input fields */
 .form-control {

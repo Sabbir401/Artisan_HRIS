@@ -1,108 +1,34 @@
-<template>
-    <section style="background-color: #eee">
-        <div class="text-center container py-5">
-            <h2 class="mt-3 mb-3">Artisan Family</h2>
-            <div class="row">
-                <div
-                    class="col-lg-2 col-md-4 mb-4"
-                    v-for="employee in employees.data"
-                    :key="employee.id"
-                >
-                    <div class="d-flex justify-content-center">
-                        <div class="card" style="width: 190px">
-                            <div style="height: 190px; width: 190px">
-                                <div v-for="i in employee.emp_img" :key="i.id">
-                                    <img
-                                        :src="
-                                            i.img_url ? i.img_url : default_img
-                                        "
-                                        height="190px"
-                                        width="190px"
-                                        alt="no image"
-                                    />
-                                </div>
-                            </div>
-                            <div class="card-body" style="height: 110px">
-                                <h5 class="card-title mb-3">
-                                    {{ employee.Full_Name }}
-                                </h5>
-                                <p>{{ employee.Contact_No }}</p>
-                                <h6 class="mb-3">
-                                    {{
-                                        employee.Official_Email
-                                            ? employee.Official_Email
-                                            : ""
-                                    }}
-                                </h6>
-                            </div>
-                            <div class="card-footer">
-                                <div d-flex>
-                                    <button
-                                        class="custom-btn btn-13"
-                                        @click="
-                                            router.push(
-                                                `/empdetails/${employee.id}`
-                                            )
-                                        "
-                                    >
-                                        <i class="fa-regular fa-user"></i>
-                                    </button>
-                                    <button
-                                        class="custom-btn btn-15 mx-2"
-                                        @click="
-                                            router.push(
-                                                `/employee/${employee.id}`
-                                            )
-                                        "
-                                    >
-                                        <i
-                                            class="fa-regular fa-pen-to-square"
-                                        ></i>
-                                    </button>
-                                    <button
-                                        class="custom-btn btn-13"
-                                        @click="cvPdf(employee.id)"
-                                    >
-                                        <i class="fa-regular fa-file"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <Bootstrap4Pagination
-                    :data="employees"
-                    :limit="2"
-                    @pagination-change-page="getData"
-                />
-            </div>
-        </div>
-    </section>
-</template>
-
 <script setup>
 import { ref, onMounted } from "vue";
-import { Bootstrap4Pagination } from "laravel-vue-pagination";
-import router from "../../../router";
-import api from '@/api';
-
-import { useStore } from "vuex";
-const store = useStore();
+import api from "@/api";
+import axios from "axios";
 
 const employees = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
-const empEdit = ref(null);
-const heading = ref(null);
-const filter = ref("");
-const default_img = ref("/storage/uploads/avater.jpg");
+const departments = ref([]);
+const selectedDepartments = ref([]);
+const designations = ref([]);
+const selectedDesignations = ref([]);
+const filteredData = ref([]);
 
-const getData = async (page = 1) => {
+// Fetch data for departments, designations, and employees
+const getData = async () => {
     try {
-        const response = await api.get(`/employee?page=${page}`);
-        employees.value = response.data;
+        const [responseDept, responseEmp] = await axios.all([
+            api.get("/department"),
+            api.get("/employee-exl"),
+        ]);
+        departments.value = responseDept.data;
+        employees.value = responseEmp.data;
+
+        // Populate unique designations based on employee data
+        designations.value = [
+            ...new Set(employees.value.map(emp => emp.designation))
+        ];
+
+        // Initially, show all employees in filteredData
+        filteredData.value = employees.value;
     } catch (err) {
         error.value = err.message || "Error fetching data";
     } finally {
@@ -110,60 +36,200 @@ const getData = async (page = 1) => {
     }
 };
 
-const cvPdf = async (id) => {
-    window.open(`/api/cv-pdf/${id}`, "_blank");
+// Filter employees based on the selected departments and designations
+const filterEmployees = () => {
+    filteredData.value = employees.value.filter(item => {
+        const deptFilter = selectedDepartments.value.length === 0 || selectedDepartments.value.includes(item.department);
+        const designationFilter = selectedDesignations.value.length === 0 || selectedDesignations.value.includes(item.designation);
+        return deptFilter && designationFilter;
+    });
 };
 
-const searchemp = async () => {
-    if (filter.value.length > 0) {
-        try {
-            const response = await api.get("/employee/search", {
-                params: {
-                    query: filter.value,
-                },
-            });
-            employees.value = response.data;
-        } catch (error) {
-            console.error(error);
-        }
+// Handle department checkbox change
+const toggleDepartment = (deptName) => {
+    const index = selectedDepartments.value.indexOf(deptName);
+    if (index > -1) {
+        selectedDepartments.value.splice(index, 1);
     } else {
-        getData();
+        selectedDepartments.value.push(deptName);
     }
+    filterEmployees();
 };
 
-const editHandler = async (id) => {
-    try {
-        const response = await api.get(`/employee/${id}/edit`);
-        empEdit.value = response.data;
-        heading.value = "Update";
-        openModal();
-    } catch (err) {
-        console.error("Error fetching store data for editing:", err);
+// Handle designation checkbox change
+const toggleDesignation = (designation) => {
+    const index = selectedDesignations.value.indexOf(designation);
+    if (index > -1) {
+        selectedDesignations.value.splice(index, 1);
+    } else {
+        selectedDesignations.value.push(designation);
     }
-};
-
-const mapMaritalStatus = (status) => {
-    const statusMap = {
-        M: "Married",
-        U: "Unmarried",
-    };
-
-    return statusMap[status] || "N/A";
-};
-
-const mapGender = (status) => {
-    const statusMap = {
-        M: "Male",
-        F: "Female",
-        O: "Other",
-    };
-
-    return statusMap[status] || "N/A";
-};
-
-const submitHandler = async () => {
-    await getData();
+    filterEmployees();
 };
 
 onMounted(() => getData());
 </script>
+
+<template>
+    <div class="row d-flex justify-space-between">
+        <div class="col-lg-3">
+            <div class="card dept-card">
+                <div class="card-header">Department</div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr v-for="item in departments" :key="item.id">
+                                <td class="checkbox-container">
+                                    <input
+                                        type="checkbox"
+                                        :id="item.Name"
+                                        :value="item.Name"
+                                        @change="toggleDepartment(item.Name)"
+                                    />
+                                    <label :for="item.Name">{{ item.Name }}</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card dept-card">
+                <div class="card-header">Designation</div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr v-for="designation in designations" :key="designation">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        :id="designation"
+                                        :value="designation"
+                                        @change="toggleDesignation(designation)"
+                                    />
+                                    <label :for="designation">{{ designation }}</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 mt-3">
+            <div class="card">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Father Name</th>
+                                <th>Mother Name</th>
+                                <th>Spouse Name</th>
+                                <th>Present Address</th>
+                                <th>Date of Birth</th>
+                                <th>Contact No</th>
+                                <th>Emergency Contact</th>
+                                <th>Official Email</th>
+                                <th>Blood Group</th>
+                                <th>Religion</th>
+                                <th>Employee Grade</th>
+                                <th>Date of Joining</th>
+                                <th>Probation Period</th>
+                                <th>Employee Type</th>
+                                <th>NID</th>
+                                <th>Nationality</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in filteredData" :key="item.id">
+                                <td>ABNB{{ item.Employee_Id }}</td>
+                                <td>{{ item.Full_Name }}</td>
+                                <td>{{ item.department }}</td>
+                                <td>{{ item.designation }}</td>
+                                <td>{{ item.Father_Name }}</td>
+                                <td>{{ item.Mother_Name }}</td>
+                                <td>{{ item.Spouse_Name }}</td>
+                                <td>{{ item.Present_Address }}</td>
+                                <td>{{ item.DOB }}</td>
+                                <td>{{ item.Contact_No }}</td>
+                                <td>{{ item.Emergency_Contact }}</td>
+                                <td>{{ item.Official_Email }}</td>
+                                <td>{{ item.group }}</td>
+                                <td>{{ item.religion }}</td>
+                                <td>{{ item.Employee_Grade }}</td>
+                                <td>{{ item.DOJ }}</td>
+                                <td>{{ item.Provation_period }}</td>
+                                <td>{{ item.employee_type }}</td>
+                                <td>{{ item.NID }}</td>
+                                <td>{{ item.Nationality }}</td>
+                                <td>{{ item.status }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+*{
+    font-size: 12px;
+}
+.card {
+    height: 400px;
+    overflow: auto;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.dept-card {
+    height: 200px;
+    overflow: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+/* Styling the checkbox */
+input[type="checkbox"] {
+    margin-right: 5px;
+    width: 12px;
+    height: 12px;
+    accent-color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Styling the label to align with the checkbox */
+label {
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Add some hover effect to make it interactive */
+td:hover {
+    background-color: #f7f7f7;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* General table styling */
+
+</style>
