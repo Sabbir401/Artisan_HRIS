@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\holiday;
 use App\Models\leave;
+use App\Models\holiday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class LeaveController extends Controller
 {
@@ -21,6 +22,52 @@ class LeaveController extends Controller
     {
         $leave = leave::get();
         return response()->json($leave);
+    }
+
+    public function getSubordinates($userId)
+    {
+        $subordinates = leave::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leave_types.Name', 'designations.Name as designation', 'departments.Name as department', 'leave_types.Name as leave_type')
+            ->join('employees', 'leaves.EID', '=', 'employees.id')
+            ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+            ->join('officials', 'officials.EID', '=', 'employees.id')
+            ->join('departments', 'officials.Department_Id', '=', 'departments.id')
+            ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
+            ->where('officials.Supervisor_Id', '=', $userId)
+            ->where('officials.Status', '=', 'N')
+            ->orderby('leaves.id', 'desc')
+            ->get();
+
+        $allSubordinates = [];
+
+        foreach ($subordinates as $subordinate) {
+            $allSubordinates[] = $subordinate;
+            $allSubordinates = array_merge($allSubordinates, $this->getSubordinates($subordinate->id));
+        }
+
+        return $allSubordinates;
+    }
+
+
+    public function allLeave() 
+    {
+        $userId = Session::get('User_Id');
+
+        if ($userId) {
+            $leaves = $this->getSubordinates($userId);
+
+            foreach ($leaves as $leave) {
+                $startDate = new \DateTime($leave->From_Date);
+                $endDate = new \DateTime($leave->To_Date);
+    
+                $interval = $startDate->diff($endDate);
+                $leave->daysBetween = $interval->days + 1;
+            }
+
+            return response()->json($leaves);
+        }
+
+
+        return response()->json(['message' => 'User not found'], 404);
     }
 
     /**
@@ -67,7 +114,7 @@ class LeaveController extends Controller
                 'Status' => $request->input('Status'),
                 'Attachment_Url' => '/storage/' . $file_path,
             ]);
-        }else{
+        } else {
             $leave = leave::create([
                 'EID' => $request->input('Employee_Id'),
                 'Leave_Type_Id' => $request->input('Leave_Type_Id'),

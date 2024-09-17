@@ -42,6 +42,24 @@
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                 >
+                <i class="fa-solid fa-bell" style="font-size: large;"></i>
+                </a>
+                <ul
+                    class="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="navbarDropdown"
+                >
+                    <li class="dropdown-item">Settings</li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a
+                    class="nav-link dropdown-toggle"
+                    id="navbarDropdown"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
                     {{ user.Full_Name }}
                     <img
                         :src="user.img_url"

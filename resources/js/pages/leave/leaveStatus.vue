@@ -3,16 +3,18 @@ import { ref, onMounted, computed } from "vue";
 import Swal from "sweetalert2";
 import api from "../../api";
 
-const department = ref([]);
 const empp = ref([]);
 const emp_img = ref([]);
 
+const department = ref([]);
 const error = ref([]);
 const leaveType = ref();
 const leave = ref([]);
 const selectedType = ref("");
-const selectedStatus = ref("Pending");
+const selectedStatus = ref("");
+const selectedDept = ref("");
 const leaveSummery = ref([]);
+const allLeave = ref([]);
 
 const form = ref({
     department: "",
@@ -22,17 +24,25 @@ const form = ref({
 
 const getData = async () => {
     try {
-        const [responsedept, responsetype] = await axios.all([
+        const [responsedept, responsetype, response] = await axios.all([
             api.get("/department"),
             api.get("/leave-type"),
+            api.get("/all-leave"),
         ]);
         department.value = responsedept.data;
         leaveType.value = responsetype.data;
+        allLeave.value = response.data;
     } catch (err) {
         error.value = err.message || "Error fetching data";
     } finally {
     }
 };
+
+
+function showLeave(id){
+
+    console.log(id);
+}
 
 const leaveApproved = async (id) => {
     form.value.Status = "Approved";
@@ -71,12 +81,14 @@ const leaveReject = async (id) => {
 };
 
 const filteredData = computed(() => {
-    return leave.value.filter((item) => {
+    return allLeave.value.filter((item) => {
         return (
             (selectedType.value === "" ||
-                item.leave_type.Name === selectedType.value) &&
+                item.leave_type === selectedType.value) &&
             (selectedStatus.value === "" ||
-                item.Status === selectedStatus.value)
+                item.Status === selectedStatus.value) &&
+            (selectedDept.value === "" ||
+                item.department === selectedDept.value)
         );
     });
 });
@@ -143,37 +155,24 @@ onMounted(() => getData());
             <div class="card">
                 <div class="card-body">
                     <div class="text-center">
-                        <h1 class="mb-5">Leave Apllication Form</h1>
+                        <h1 class="mb-5">Applicant status</h1>
                     </div>
                     <div class="d-flex">
                         <div class="col-lg-4 px-2">
                             <form class="forms-sample" @submit.prevent="submit">
                                 <div class="row">
                                     <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"
-                                                >Department</label
-                                            >
-                                            <select
-                                                class="form-control"
-                                                name="status"
-                                                id=""
-                                                v-model="form.department"
-                                                @change="
-                                                    getEmployee(form.department)
-                                                "
-                                            >
-                                                <option selected disabled>
-                                                    select
-                                                </option>
-                                                <option
-                                                    v-for="dept in department"
-                                                    :key="dept.id"
-                                                    :value="dept.id"
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"
+                                                    ><i class="fa-regular fa-user"></i></span
                                                 >
-                                                    {{ dept.Name }}
-                                                </option>
-                                            </select>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                readonly
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -251,14 +250,30 @@ onMounted(() => getData());
                     </div>
 
                     <div class="row d-flex justify-content-end">
+                        <div class="col-lg-3">
+                            <label for="exampleInputEmail1">Department</label>
+                            <select v-model="selectedDept" class="form-control">
+                                <option value="">All Department</option>
+                                <option
+                                    v-for="item in department"
+                                    :key="item.id"
+                                    :value="item.Name"
+                                >
+                                    {{ item.Name }}
+                                </option>
+                            </select>
+                        </div>
                         <div class="col-lg-2">
                             <label for="exampleInputEmail1">Leave Type</label>
                             <select v-model="selectedType" class="form-control">
                                 <option value="">All Type</option>
-                                <option value="Casual">Casual</option>
-                                <option value="Sick">Sick</option>
-                                <option value="Enarned">Enarned</option>
-                                <option value="Other">Other</option>
+                                <option
+                                    v-for="item in leaveType"
+                                    :key="item.id"
+                                    :value="item.Name"
+                                >
+                                    {{ item.Name }}
+                                </option>
                             </select>
                         </div>
                         <div class="col-lg-2">
@@ -280,6 +295,7 @@ onMounted(() => getData());
                             <thead>
                                 <tr>
                                     <th>S/N</th>
+                                    <th>Employee Name</th>
                                     <th>From Data</th>
                                     <th>To Date</th>
                                     <th>Total Days</th>
@@ -294,14 +310,16 @@ onMounted(() => getData());
                                     class="ver-align"
                                     v-for="(l, index) in filteredData"
                                     :key="l.id"
+                                    @click="showLeave(l.id)"
                                 >
                                     <td>{{ index + 1 }}</td>
+                                    <td>{{ l.Full_Name }}</td>
                                     <td>{{ l.From_Date }}</td>
                                     <td>{{ l.To_Date }}</td>
                                     <td>
                                         {{ l.daysBetween }}
                                     </td>
-                                    <td>{{ l.leave_type.Name }}</td>
+                                    <td>{{ l.leave_type }}</td>
                                     <td>{{ l.Status }}</td>
                                     <td v-if="l.Attachment_Url !== '/storage/'">
                                         <button
@@ -364,5 +382,17 @@ onMounted(() => getData());
 
 .leave-status {
     width: 100%;
+}
+
+.input-group-text{
+    padding: 8px;
+}
+
+tr:hover {
+    cursor: pointer;
+}
+
+tr:hover td {
+    background-color: #d3d9d9 !important; 
 }
 </style>
