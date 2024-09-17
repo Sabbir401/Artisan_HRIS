@@ -3,17 +3,14 @@ import { ref, onMounted, computed } from "vue";
 import Swal from "sweetalert2";
 import api from "../../api";
 
-const empp = ref([]);
-const emp_img = ref([]);
+const employee = ref([]);
 
 const department = ref([]);
 const error = ref([]);
 const leaveType = ref();
-const leave = ref([]);
 const selectedType = ref("");
 const selectedStatus = ref("");
 const selectedDept = ref("");
-const leaveSummery = ref([]);
 const allLeave = ref([]);
 
 const form = ref({
@@ -38,45 +35,62 @@ const getData = async () => {
     }
 };
 
-
-function showLeave(id){
-
-    console.log(id);
-}
-
 const leaveApproved = async (id) => {
-    form.value.Status = "Approved";
     try {
-        const response = await api.put(`/leave/${id}`, form.value);
-        empp.value = response.data;
-        Swal.fire({
-            position: "middle",
-            icon: "success",
-            title: "Leave has been Approved",
-            showConfirmButton: false,
-            timer: 1500,
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to approve the leave?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+            reverseButtons: true,
         });
-        getEmployeeImg(form.value.Employee_Id);
-    } catch (error) {
-        console.error("Error updating store:", error);
+
+        if (result.isConfirmed) {
+            form.value.Status = "Approved";
+            const response = await api.put(`/leave/${id}`, form.value);
+            Swal.fire({
+                position: "middle",
+                icon: "success",
+                title: "The application has been saved",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            getData();
+        }
+    } catch (err) {
+        error.value = err.response.data.errors;
     }
 };
 
+
 const leaveReject = async (id) => {
-    form.value.Status = "Rejected";
     try {
-        const response = await api.put(`/leave/${id}`, form.value);
-        empp.value = response.data;
-        Swal.fire({
-            position: "middle",
-            icon: "error",
-            title: "Leave has been Rejected",
-            showConfirmButton: false,
-            timer: 1500,
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to approve the leave?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+            reverseButtons: true,
         });
-        getEmployeeImg(form.value.Employee_Id);
-    } catch (error) {
-        console.error("Error updating store:", error);
+
+        if (result.isConfirmed) {
+            form.value.Status = "Rejected";
+            const response = await api.put(`/leave/${id}`, form.value);
+            Swal.fire({
+                position: "middle",
+                icon: "success",
+                title: "The application has been rejected",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            getData();
+        }
+    } catch (err) {
+        error.value = err.response.data.errors;
     }
 };
 
@@ -95,31 +109,8 @@ const filteredData = computed(() => {
 
 const getEmployee = async (id) => {
     try {
-        const response = await api.get(`/emp/${id}`);
-        empp.value = response.data;
-    } catch (error) {
-        console.error("Error updating store:", error);
-    }
-};
-
-const getLeave = async (id) => {
-    try {
-        const response = await api.get(`/leave-summery/${id}`);
-        leaveSummery.value = response.data;
-    } catch (error) {
-        console.error("Error updating store:", error);
-    }
-};
-
-const getEmployeeImg = async (id) => {
-    try {
-        const [responseimg, responseleave] = await axios.all([
-            api.get(`/empimg/${id}`),
-            api.get(`/leave/${id}`),
-        ]);
-        emp_img.value = responseimg.data;
-        leave.value = responseleave.data;
-        getLeave(id);
+        const response = await api.get(`/leave/${id}`);
+        employee.value = response.data;
     } catch (error) {
         console.error("Error updating store:", error);
     }
@@ -127,18 +118,32 @@ const getEmployeeImg = async (id) => {
 
 const totalLeaveDays = computed(() => {
     const totals = {};
-    leave.value.forEach((l) => {
-        const typeName = l.leave_type.Name;
-        if (!totals[typeName]) {
-            totals[typeName] = {
+
+    if (Array.isArray(leaveType.value) && leaveType.value.length > 0) {
+        leaveType.value.forEach((type) => {
+            totals[type.Name] = {
                 totalDays: 0,
-                maxDays: l.leave_type.Max_Days,
+                maxDays: type.Max_Days || 0,
             };
-        }
-        if (l.Status === "Approved") {
-            totals[typeName].totalDays += l.daysBetween;
-        }
-    });
+        });
+
+        employee.value.forEach((item) => {
+            const typeName = item.leave_type;
+            if (!totals[typeName]) {
+                totals[typeName] = {
+                    totalDays: 0,
+                    maxDays: item.Max_Days,
+                };
+            }
+
+            totals[typeName].maxDays = item.Max_Days;
+
+            if (item.Status === "Approved") {
+                totals[typeName].totalDays += item.daysBetween;
+            }
+        });
+    }
+
     return totals;
 });
 
@@ -155,56 +160,73 @@ onMounted(() => getData());
             <div class="card">
                 <div class="card-body">
                     <div class="text-center">
-                        <h1 class="mb-5">Applicant status</h1>
+                        <h1 class="mb-5">Applicant Leave status</h1>
                     </div>
                     <div class="d-flex">
-                        <div class="col-lg-4 px-2">
-                            <form class="forms-sample" @submit.prevent="submit">
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"
-                                                    ><i class="fa-regular fa-user"></i></span
+                        <div class="col-lg-8 px-2">
+                            <section
+                                class="section about-section gray-bg"
+                                id="about"
+                            >
+                                <div class="container">
+                                    <div
+                                        class="row align-items-center flex-row-reverse"
+                                    >
+                                        <div class="col-lg-7">
+                                            <div
+                                                class="about-text go-to"
+                                                v-for="(
+                                                    item, index
+                                                ) in employee"
+                                                :key="item.id"
+                                            >
+                                                <h3
+                                                    class="dark-color"
+                                                    v-if="index === 0"
                                                 >
+                                                    {{ item.Full_Name || "" }}
+                                                </h3>
+                                                <h6
+                                                    class="theme-color lead"
+                                                    v-if="index === 0"
+                                                >
+                                                    {{ item.designation || "" }}
+                                                </h6>
+                                                <h6
+                                                    class="theme-color lead"
+                                                    v-if="index === 0"
+                                                >
+                                                    {{ item.department || "" }}
+                                                </h6>
                                             </div>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                readonly
-                                            />
+                                        </div>
+                                        <div
+                                            class="col-lg-5"
+                                            v-for="(item, index) in employee"
+                                            :key="item.id"
+                                        >
+                                            <div
+                                                class="about-avatar"
+                                                v-if="index === 0"
+                                            >
+                                                <img
+                                                    :src="
+                                                        item.img_url
+                                                            ? item.img_url
+                                                            : ''
+                                                    "
+                                                    height="100%"
+                                                    width="100%"
+                                                    style="
+                                                        max-height: 110px;
+                                                        max-width: 110px;
+                                                    "
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"
-                                                >Employee Name</label
-                                            >
-                                            <select
-                                                class="form-control"
-                                                name="status"
-                                                id=""
-                                                v-model="form.Employee_Id"
-                                                @change="
-                                                    getEmployeeImg(
-                                                        form.Employee_Id
-                                                    )
-                                                "
-                                            >
-                                                <option
-                                                    v-for="e in empp"
-                                                    :key="e.id"
-                                                    :value="e.id"
-                                                >
-                                                    {{ e.Full_Name }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                            </section>
                         </div>
 
                         <div class="col-lg-4 px-2">
@@ -227,17 +249,6 @@ onMounted(() => getData());
                                     <td>{{ info.maxDays - info.totalDays }}</td>
                                 </tr>
                             </table>
-                        </div>
-
-                        <div class="col-lg-4 px-2">
-                            <div class="d-flex justify-content-center">
-                                <img
-                                    :src="emp_img ? emp_img.img_url : ''"
-                                    height="100%"
-                                    width="100%"
-                                    style="max-height: 110px; max-width: 110px"
-                                />
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -310,7 +321,7 @@ onMounted(() => getData());
                                     class="ver-align"
                                     v-for="(l, index) in filteredData"
                                     :key="l.id"
-                                    @click="showLeave(l.id)"
+                                    @click="getEmployee(l.EID)"
                                 >
                                     <td>{{ index + 1 }}</td>
                                     <td>{{ l.Full_Name }}</td>
@@ -321,7 +332,7 @@ onMounted(() => getData());
                                     </td>
                                     <td>{{ l.leave_type }}</td>
                                     <td>{{ l.Status }}</td>
-                                    <td v-if="l.Attachment_Url !== '/storage/'">
+                                    <td v-if="l.Attachment_Url">
                                         <button
                                             @click="
                                                 openAttachment(l.Attachment_Url)
@@ -384,7 +395,7 @@ onMounted(() => getData());
     width: 100%;
 }
 
-.input-group-text{
+.input-group-text {
     padding: 8px;
 }
 
@@ -393,6 +404,6 @@ tr:hover {
 }
 
 tr:hover td {
-    background-color: #d3d9d9 !important; 
+    background-color: #d3d9d9 !important;
 }
 </style>

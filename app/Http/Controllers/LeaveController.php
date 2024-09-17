@@ -26,7 +26,7 @@ class LeaveController extends Controller
 
     public function getSubordinates($userId)
     {
-        $subordinates = leave::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leave_types.Name', 'designations.Name as designation', 'departments.Name as department', 'leave_types.Name as leave_type')
+        $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leave_types.Name', 'designations.Name as designation', 'departments.Name as department', 'leave_types.Name as leave_type')
             ->join('employees', 'leaves.EID', '=', 'employees.id')
             ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
             ->join('officials', 'officials.EID', '=', 'employees.id')
@@ -48,7 +48,7 @@ class LeaveController extends Controller
     }
 
 
-    public function allLeave() 
+    public function allLeave()
     {
         $userId = Session::get('User_Id');
 
@@ -58,7 +58,7 @@ class LeaveController extends Controller
             foreach ($leaves as $leave) {
                 $startDate = new \DateTime($leave->From_Date);
                 $endDate = new \DateTime($leave->To_Date);
-    
+
                 $interval = $startDate->diff($endDate);
                 $leave->daysBetween = $interval->days + 1;
             }
@@ -125,13 +125,6 @@ class LeaveController extends Controller
             ]);
         }
 
-        //      FIND Days Between Dates
-        // $startDate = new \DateTime($request->From_Date);
-        // $endDate = new \DateTime($request->To_Date);
-
-        // $interval = $startDate->diff($endDate);
-        // $daysBetween = $interval->days;
-        // dd($daysBetween);
 
         $response = [
             'success'   =>  true,
@@ -154,7 +147,17 @@ class LeaveController extends Controller
      */
     public function show($id)
     {
-        $leaves = leave::with('leave_type')->where('EID', $id)->get();
+        $leaves = leave::select('employees.id', 'employees.Full_Name', 'emp_imgs.img_url', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leave_types.Name', 'designations.Name as designation', 'departments.Name as department', 'leave_types.Name as leave_type', 'leave_types.Max_Days')
+            ->join('employees', 'leaves.EID', '=', 'employees.id')
+            ->join('emp_imgs', 'emp_imgs.EID', '=', 'employees.id')
+            ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+            ->join('officials', 'officials.EID', '=', 'employees.id')
+            ->join('departments', 'officials.Department_Id', '=', 'departments.id')
+            ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
+            ->where('officials.Status', '=', 'N')
+            ->where('leaves.EID', '=', $id)
+            ->orderby('leaves.id', 'desc')
+            ->get();
 
         foreach ($leaves as $leave) {
             $startDate = new \DateTime($leave->From_Date);

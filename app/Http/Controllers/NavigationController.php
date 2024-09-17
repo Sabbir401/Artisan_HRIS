@@ -81,4 +81,5 @@ class NavigationController extends Controller
 
         return $allSubordinates;
     }
+
 }

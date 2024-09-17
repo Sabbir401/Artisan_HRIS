@@ -428,7 +428,7 @@ onMounted(() => getData());
                                     </td>
                                     <td>{{ l.Purpose }}</td>
                                     <td>{{ l.Status }}</td>
-                                    <td v-if="l.Attachment_Url !== '/storage/'">
+                                    <td v-if="l.Attachment_Url">
                                         <button
                                             @click="
                                                 openAttachment(l.Attachment_Url)
