@@ -33,7 +33,7 @@
         </form>
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-            <li class="nav-item dropdown position-relative">
+            <li class="nav-item dropdown position-relative p-2">
                 <a
                     class="nav-link position-relative"
                     id="navbarDropdown"

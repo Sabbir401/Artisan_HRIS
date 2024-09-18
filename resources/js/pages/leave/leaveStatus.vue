@@ -218,8 +218,8 @@ onMounted(() => getData());
                                                     height="100%"
                                                     width="100%"
                                                     style="
-                                                        max-height: 110px;
-                                                        max-width: 110px;
+                                                        max-height: 150px;
+                                                        max-width: 130px;
                                                     "
                                                 />
                                             </div>
