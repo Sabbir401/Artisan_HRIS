@@ -55,15 +55,13 @@
                 <ul
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown"
-                    v-for="item in notification" :key="item.id"
+                    v-if="notification.length > 0"
                 >
-                    <!-- Notifications list -->
-                    <li   class="dropdown-item">
-                        {{ item.Full_Name }} Requested a Leave
-                    </li>
-                    <li v-if="!notification.length" class="dropdown-item">
-                        No notifications
-                    </li>
+                    <div v-for="item in notification" :key="item.id">
+                        <li class="dropdown-item" v-if="item.Status === 'Pending'" @click="router.push('/leave/leave-status')">
+                            {{ item.Full_Name }} Requested a Leave
+                        </li>
+                    </div>
                 </ul>
             </li>
             <li class="nav-item dropdown">
@@ -99,42 +97,41 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
-import api from '../api';
-import { useRouter } from 'vue-router';
-import { useStore } from 'vuex';
+import { ref, onMounted, computed } from "vue";
+import api from "../api";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 const store = useStore();
 const router = useRouter();
-const error = ref('');
+const error = ref("");
 const user = ref({});
 const notification = ref([]);
 
 // Compute the number of pending notifications
-const pendingCount = computed(() => 
-    notification.value.filter(item => item.Status === 'Pending').length
+const pendingCount = computed(
+    () => notification.value.filter((item) => item.Status === "Pending").length
 );
 
 const getData = async () => {
     try {
         const [responseUser, responseNotification] = await Promise.all([
-            api.get('/current-user'),
-            api.get('/all-leave'),
+            api.get("/current-user"),
+            api.get("/all-leave"),
         ]);
         user.value = responseUser.data;
         notification.value = responseNotification.data;
-        if (user.value === 'logout') {
+        if (user.value === "logout") {
             logout();
         }
     } catch (err) {
-        error.value = err.message || 'Error fetching data';
+        error.value = err.message || "Error fetching data";
     }
 };
 
 function logout() {
-    store.dispatch('removeToken', 0);
-    router.push({ name: 'Login' });
+    store.dispatch("removeToken", 0);
+    router.push({ name: "Login" });
 }
 
 onMounted(() => getData());
