@@ -36,7 +36,7 @@ const hotSettings = ref({
     autoWrapRow: true,
     autoWrapCol: true,
     licenseKey: "non-commercial-and-evaluation",
-    height: window.innerHeight - 200,
+    height: window.innerHeight - 250,
 
     fixedColumnsStart: 3,
     rowHeaders: true,

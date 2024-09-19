@@ -69,7 +69,7 @@ const register = async () => {
             Swal.fire({
                 position: "middle",
                 icon: "success",
-                title: "New User Created",
+                title: response.data.message,
                 showConfirmButton: false,
                 timer: 1500,
             });

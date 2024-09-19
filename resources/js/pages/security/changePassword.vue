@@ -3,34 +3,30 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import api from "@/api";
+import Swal from "sweetalert2";
+
 
 const router = useRouter();
 const store = useStore();
 const form = reactive({
-    email: "",
     password: "",
+    confirm_password: "",
 });
 const err = ref("");
 
-// const login = async () => {
-//     await api.post("/login", form).then((res) => {
-//         if (res.data.success) {
-//             store.dispatch("setToken", res.data.data.token);
-//             store.dispatch("setPermissions", res.data.data.permissions);
-//             router.push({ name: "Home" });
-//         } else {
-//             err.value = 'res.data.errors';
-//         }
-//     });
-// };
-
-const login = async () => {
+const submit = async () => {
     try {
-        const res = await api.post("/login", form);
+        const res = await api.put("/change-password", form);
         if (res.data.success) {
-            store.dispatch("setToken", res.data.data.token);
-            store.dispatch("setPermissions", res.data.data.permissions);
-            router.push({ name: "Home" });
+            Swal.fire({
+                position: "middle",
+                icon: "success",
+                title: 'Password Changes Successfully',
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            store.dispatch("removeToken", 0);
+            router.push({ name: "Login" });
         } else {
             err.value = res.data.message || "An unknown error occurred";
         }
@@ -49,24 +45,22 @@ const login = async () => {
                 height="200px"
                 width="200px"
             />
-            <form class="form" @submit.prevent="login">
+            <h3 class="mb-5">Change Password</h3>
+            <form class="form" @submit.prevent="submit">
                 <span class="text-danger">{{ err }}</span>
                 <input
-                    type="email"
+                    type="password"
                     class="input"
-                    placeholder="Email"
-                    v-model="form.email"
+                    placeholder="New Password"
+                    v-model="form.password"
                 />
                 <input
                     type="password"
                     class="input"
-                    placeholder="Password"
-                    v-model="form.password"
+                    placeholder=" Confirm Password"
+                    v-model="form.confirm_password"
                 />
-                <p class="page-link">
-                    <span class="page-link-label">Forgot Password?</span>
-                </p>
-                <button class="form-btn">Log in</button>
+                <button class="form-btn">Change Password</button>
             </form>
         </div>
     </div>
@@ -109,24 +103,8 @@ const login = async () => {
     padding: 12px 15px;
 }
 
-.page-link {
-    text-decoration: underline;
-    margin: 0;
-    text-align: end;
+h3 {
     color: #747474;
-    text-decoration-color: #747474;
-}
-
-.page-link-label {
-    cursor: pointer;
-    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-    font-size: 9px;
-    font-weight: 700;
-}
-
-.page-link-label:hover {
-    color: #000;
 }
 
 .form-btn {

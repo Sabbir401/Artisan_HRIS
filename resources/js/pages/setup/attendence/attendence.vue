@@ -18,21 +18,6 @@
                     </option>
                 </select>
             </div>
-            <div class="col-lg-2 mt-5">
-                <button class="custom-btn btn-13 p-2" @click="fetchAttendence">
-                    Fetch Attendence
-                </button>
-            </div>
-            <div class="col-lg-2 mt-5">
-                <button class="custom-btn btn-12 p-2" @click="fetchMachineUser">
-                    Fetch Machine User
-                </button>
-            </div>
-            <div class="col-lg-2 mt-5">
-                <button class="custom-btn btn-12 p-2" @click="fetchMachineAttendence">
-                    Fetch Machine Attendence
-                </button>
-            </div>
         </div>
         <div>
             <button class="custom-btn btn-15 mb-3" @click="saveData">
@@ -46,17 +31,21 @@
                 :settings="hotSettings"
             ></hot-table>
         </div>
+        <div>
+            <button @click="exportToExcel" class="custom-btn btn-13 mt-3">
+                Export to Excel
+            </button>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
 import { HotTable } from "@handsontable/vue3";
 import { registerAllModules } from "handsontable/registry";
 import "handsontable/dist/handsontable.full.css";
 import Swal from "sweetalert2";
-import api from '@/api';
+import api from "@/api";
 
 // Register Handsontable's modules
 registerAllModules();
@@ -89,7 +78,6 @@ const generateDays = () => {
     daysInMonth.value = Array.from({ length: days }, (v, k) => k + 1);
 
     hotSettings.value.colHeaders = [
-        "ID",
         "Department",
         "Employee Name",
         "Designation",
@@ -98,7 +86,6 @@ const generateDays = () => {
     ];
 
     hotSettings.value.columns = [
-        { type: "text", data: "id", readOnly: true },
         { type: "text", data: "department", readOnly: true },
         { type: "text", data: "Full_Name", readOnly: true },
         { type: "text", data: "designation", readOnly: true },
@@ -121,7 +108,7 @@ const hotSettings = ref({
     autoWrapRow: true,
     autoWrapCol: true,
     licenseKey: "non-commercial-and-evaluation",
-    height: window.innerHeight - 200,
+    height: window.innerHeight - 250,
 
     fixedColumnsStart: 5,
     rowHeaders: true,
@@ -133,10 +120,10 @@ const hotSettings = ref({
         { type: "text", data: "designation", readOnly: true },
         { type: "text", data: "branch", readOnly: true },
     ],
-    hiddenColumns: {
-        columns: [0],
-        indicators: false,
-    },
+    // hiddenColumns: {
+    //     columns: [0],
+    //     indicators: false,
+    // },
     minSpareRows: 1,
     minSpareCols: 1,
     manualColumnResize: true,
@@ -269,16 +256,66 @@ const saveData = async () => {
                 month: selectedMonth.value,
             });
             Swal.fire({
-                    title: "Success!",
-                    text: "Attendence Updated",
-                    icon: "success",
-                    confirmButtonText: "OK"
-                });
+                title: "Success!",
+                text: "Attendence Updated",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
         }
     } catch (error) {
         console.error("Error saving data:", error);
     }
 };
+
+function exportToExcel() {
+    // Get the data from the Handsontable instance
+    const data = hotTableComponent.value.hotInstance.getData();
+    const headers = hotTableComponent.value.hotInstance.getColHeader();
+
+    // Get the current date and time
+    const now = new Date();
+    const timestamp = now.toLocaleString(); // Format as per your locale
+
+    // Add additional headings
+    const title = ["Attendance Report"];
+    const subtitle = ["Artisan Business Network Bangladesh"];
+    const printTime = [`Printed on: ${timestamp}`];
+
+    // Combine headers with data
+    const sheetData = [
+        title, 
+        subtitle, 
+        printTime, 
+        [], 
+        headers, 
+        ...data, 
+    ];
+
+    // Create a new workbook and a sheet
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // Create a binary string representation of the workbook
+    const workbookBinary = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+    });
+
+    // Create a Blob from the binary data
+    const blob = new Blob([workbookBinary], {
+        type: "application/octet-stream",
+    });
+
+    // Create a link element and trigger the download
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Attendence Report.xlsx";
+    link.click();
+
+    // Clean up the URL object
+    URL.revokeObjectURL(link.href);
+}
 
 onMounted(() => generateDays());
 </script>

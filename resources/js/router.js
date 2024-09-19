@@ -112,6 +112,15 @@ const routes = [
         },
     },
     {
+        path: "/setup/attendence/fetch-attendance",
+        name: "FetchAttendance",
+        component: () => import('./pages/setup/attendence/fetchAttendance.vue'),
+        meta: {
+            requireAuth: true,
+        },
+        pageId: 22,
+    },
+    {
         path: "/setup/assetInformation",
         name: "AssetInformation",
         component: () => import('./pages/setup/assets/assetInformation.vue'),
@@ -163,6 +172,15 @@ const routes = [
         meta: {
             requireAuth: true,
             pageId: 5,
+        },
+    },
+    {
+        path: "/security/change-password",
+        name: "ChangePassword",
+        component: () => import('./pages/security/changePassword.vue'),
+        meta: {
+            requireAuth: true,
+            pageId: 23,
         },
     },
     {

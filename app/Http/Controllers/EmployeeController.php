@@ -19,7 +19,7 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employee = employee::with('empImg')->orderBy('Employee_Id', 'asc')->paginate(12);
+        $employee = employee::with('empImg')->where('Full_Name', '!=', 'Admin')->orderBy('Employee_Id', 'asc')->paginate(12);
         return response()->json($employee);
     }
 

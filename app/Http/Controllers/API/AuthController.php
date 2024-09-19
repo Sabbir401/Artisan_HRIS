@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\employee;
-use App\Models\User;
-use App\Models\user_has_page;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Validator;
+use App\Models\User;
+use App\Models\employee;
+use App\Mail\UserCreated;
+use Illuminate\Http\Request;
+use App\Models\user_has_page;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
@@ -52,29 +54,93 @@ class AuthController extends Controller
             return response()->json($response, 400);
         }
 
-        // $input = $request->all();   
-        // $input['password']  =  bcrypt($input['password']);
-        // $user = User::create($input);
+        $user = User::where('email', $request->input('email'))
+            ->orWhere('EID', $request->input('employee_Id'))
+            ->first();
 
-        $user = User::create([
-            'name' => $name,
-            'email' => $request->input('email'),
-            'EID' => $request->input('employee_Id'),
-            'password' => bcrypt($request->input('password')),
+        if ($user) {
+            // Update the existing user's details
+            $user->name = $name;
+            $user->password = bcrypt($request->input('password'));
+            $user->save();
+
+            $message = 'User updated successfully';
+        } else {
+            // Create a new user if no existing user is found
+            $user = User::create([
+                'name' => $name,
+                'email' => $request->input('email'),
+                'EID' => $request->input('employee_Id'),
+                'password' => bcrypt($request->input('password')),
+            ]);
+
+            $message = 'User registered successfully';
+            
+            Mail::to($user->email)->send(new UserCreated($user));
+        }
+
+        // Generate token and prepare response data
+        $success['token']   =   $user->createToken('MyApp')->plainTextToken;
+        $success['name']    =   $user->name;
+
+        // Return success response
+        $response = [
+            'success'       =>  true,
+            'data'          =>  $success,
+            'message'       =>  $message
+        ];
+        return response()->json($response, 200);
+    }
+
+
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'password'  =>  'required',
+            'confirm_password' =>  'required|same:password',
+        ], [
+            'password.required' => 'The password is required.',
+            'confirm_password.required' => 'The confirm password is required.',
+            'confirm_password.same' => 'The password does not match.',
         ]);
+
+        $userId = Session::get('User_Id');
+
+        $user = User::select('users.id',  'users.name', 'users.email', 'users.EID', 'users.password')
+            ->join('employees', 'users.EID', '=', 'employees.id')->where('employees.id', $userId)
+            ->first();
+
+        if (!$user) {
+            $response = [
+                'success'   => false,
+                'message'   => 'User not found with the provided email address',
+            ];
+            return response()->json($response, 404);
+        }
+
+        $user->password = bcrypt($request->input('password'));
+        $user->save();
 
         $success['token']   =   $user->createToken('MyApp')->plainTextToken;
         $success['name']    =   $user->name;
         $response           =   [
             'success'       =>  true,
             'data'          =>  $success,
-            'message'       =>  'User register successfully'
+            'message'       =>  'Password Changes Successfully'
         ];
         return response()->json($response, 200);
     }
 
     public function login(Request $request)
     {
+        $request->validate([
+            'email'  =>  'required',
+            'password'  =>  'required'
+        ], [
+            'email.required' => 'Email is required.',
+            'password.required' => 'Password is required.',
+        ]);
         if (Auth::attempt(['email' =>  $request->email, 'password'  =>  $request->password])) {
             $user = Auth::user();
 
@@ -104,7 +170,7 @@ class AuthController extends Controller
         } else {
             $response       =   [
                 'success'       =>  false,
-                'message'       =>  'Unauthorized'
+                'message'       =>  'Email or password is incorrect'
             ];
             return response()->json($response);
         }

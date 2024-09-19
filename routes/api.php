@@ -47,6 +47,8 @@ Route::controller(AuthController::class)->group(function () {
 // Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/change-password', [AuthController::class, 'changePassword']);
+
     //Employee Controller
     Route::get('/employee', [EmployeeController::class, 'index']);
     Route::post('/employee', [EmployeeController::class, 'store']);
