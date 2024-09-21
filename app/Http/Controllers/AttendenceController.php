@@ -97,32 +97,61 @@ class AttendenceController extends Controller
         return $pdf->stream('attendance_report.pdf');
     }
 
+    // public function getSubordinates($userId)
+    // {
+    //     $subordinates = employee::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'designations.Name as designation', 'departments.Name as department', 'branches.Name as branch')
+    //         ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
+    //         ->leftjoin('departments', 'officials.Department_Id', '=', 'departments.id')
+    //         ->leftjoin('designations', 'officials.Designation_Id', '=', 'designations.id')
+    //         ->leftjoin('branches', 'officials.Job_Location_Id', '=', 'branches.id')
+    //         ->where('officials.Supervisor_Id', '=', $userId)
+    //         ->where('officials.Status', '=', 'N')
+    //         ->orderby('departments.Name', 'asc')
+    //         ->get();
+
+    //     $allSubordinates = [];
+
+    //     foreach ($subordinates as $subordinate) {
+    //         $allSubordinates[] = $subordinate;
+    //         $allSubordinates = array_merge($allSubordinates, $this->getSubordinates($subordinate->id));
+    //     }
+
+    //     return $allSubordinates;
+    // }
+
     public function getSubordinates($userId)
     {
-        $subordinates = employee::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'designations.Name as designation', 'departments.Name as department', 'branches.Name as branch')
-            ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
-            ->leftjoin('departments', 'officials.Department_Id', '=', 'departments.id')
-            ->leftjoin('designations', 'officials.Designation_Id', '=', 'designations.id')
-            ->leftjoin('branches', 'officials.Job_Location_Id', '=', 'branches.id')
-            ->where('officials.Supervisor_Id', '=', $userId)
-            ->where('officials.Status', '=', 'N')
-            ->orderby('departments.Name', 'asc')
-            ->get();
+        $subordinates = [];
+        $queue = [$userId];
 
-        $allSubordinates = [];
+        while (!empty($queue)) {
+            $currentUserId = array_shift($queue);
+            $subordinateEmployees = employee::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'designations.Name as designation', 'departments.Name as department', 'branches.Name as branch')
+                ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
+                ->leftjoin('departments', 'officials.Department_Id', '=', 'departments.id')
+                ->leftjoin('designations', 'officials.Designation_Id', '=', 'designations.id')
+                ->leftjoin('branches', 'officials.Job_Location_Id', '=', 'branches.id')
+                ->where('officials.Supervisor_Id', '=', $currentUserId)
+                ->where('officials.Status', '=', 'N')
+                ->orderby('departments.Name', 'asc')
+                ->get();
 
-        foreach ($subordinates as $subordinate) {
-            $allSubordinates[] = $subordinate;
-            $allSubordinates = array_merge($allSubordinates, $this->getSubordinates($subordinate->id));
+            foreach ($subordinateEmployees as $subordinate) {
+                $subordinates[] = $subordinate;
+                $queue[] = $subordinate->id;
+            }
         }
 
-        return $allSubordinates;
+        return $subordinates;
     }
 
 
     public function attendenceEmployee()
     {
         $userId = Session::get('User_Id');
+        if($userId === 13){
+            $userId = 208;
+        }
 
         if ($userId) {
             $employee = $this->getSubordinates($userId);
