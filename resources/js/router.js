@@ -4,14 +4,7 @@ import store from "./store/store";
 
 
 const routes = [
-    {
-        path: "/",
-        name: "Navbar",
-        component: () => import('./layouts/Navbar.vue'),
-        meta: {
-            requireAuth: true,
-        },
-    },
+
     {
         path: "/login",
         name: "Login",

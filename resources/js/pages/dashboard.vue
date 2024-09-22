@@ -1,33 +1,19 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import api from "@/api";
+import { RouterLink, RouterView } from "vue-router";
 
 const error = ref("");
 const department = ref([]);
 const dashCount = ref([]);
 
-const getData = async () => {
-    try {
-        const [responsedept, dashCountres] = await axios.all([
-            api.get("/department"),
-            api.get("/dashboard-count"),
-        ]);
-        department.value = responsedept.data;
-        dashCount.value = dashCountres.data;
-
-        // Call initializeChart() only after data has been fetched
-        await initializeChart();
-    } catch (err) {
-        error.value = err.message || "Error fetching data";
-    }
-};
-
 const initializeChart = async () => {
-    const [responsedept, responsetype] = await axios.all([
+    const [responsedept, dashCountres] = await axios.all([
         api.get("/dept-chart"),
-        api.get("/leave-type"),
+        api.get("/dashboard-count"),
     ]);
     department.value = responsedept.data;
+    dashCount.value = dashCountres.data;
 
     const ctx = document.getElementById("myBarChart").getContext("2d");
 
@@ -96,12 +82,17 @@ onMounted(() => initializeChart());
             <div class="row">
                 <div class="col-xl-3 col-md-6">
                     <div class="card bg-dark text-white mb-4">
-                        <div class="card-body">Total Employee</div>
+                        <div class="card-body d-flex justify-content-between">
+                            <div>Total Employee</div>
+                            <div>{{ dashCount.employee }}</div>
+                        </div>
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
                         >
-                            <a class="small text-white stretched-link" href="#"
-                                >View Details</a
+                            <router-link
+                                class="small text-white stretched-link"
+                                :to="{ name: 'EmployeeList' }"
+                                >View Details</router-link
                             >
                             <div class="small text-white">
                                 <i class="fas fa-angle-right"></i>
@@ -111,12 +102,17 @@ onMounted(() => initializeChart());
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <div class="card bg-info text-white mb-4">
-                        <div class="card-body">Total Department</div>
+                        <div class="card-body d-flex justify-content-between">
+                            <div>Total Department</div>
+                            <div>{{ dashCount.department }}</div>
+                        </div>
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
                         >
-                            <a class="small text-white stretched-link" href="#"
-                                >View Details</a
+                            <router-link
+                                class="small text-white stretched-link"
+                                :to="{ name: 'EmployeeList' }"
+                                >View Details</router-link
                             >
                             <div class="small text-white">
                                 <i class="fas fa-angle-right"></i>
@@ -141,12 +137,15 @@ onMounted(() => initializeChart());
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <div class="card bg-danger text-white mb-4">
-                        <div class="card-body">Total Leave</div>
+                        <div class="card-body d-flex justify-content-between">
+                            <div>Total Leave</div>
+                            <div>{{ dashCount.leave }}</div>
+                        </div>
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
                         >
-                            <a class="small text-white stretched-link" href="#"
-                                >View Details</a
+                        <router-link class="small text-white stretched-link" :to="{ name: 'LeaveStatus' }"
+                                >View Details</router-link
                             >
                             <div class="small text-white">
                                 <i class="fas fa-angle-right"></i>

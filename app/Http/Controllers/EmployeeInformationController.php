@@ -162,7 +162,7 @@ class EmployeeInformationController extends Controller
         $leave = leave::count();
 
         return [
-            'departmentCount' => $department,
+            'department' => $department,
             'employee' => $employee,
             'leave' => $leave,
         ];
