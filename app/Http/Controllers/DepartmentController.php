@@ -17,51 +17,22 @@ class DepartmentController extends Controller
         return response()->json($department);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function deptForChart()
     {
-        //
-    }
+        $department = Department::selectRaw('COUNT(officials.id) as employee_count, departments.Name')
+            ->join('officials', 'officials.Department_Id', '=', 'departments.id')
+            ->groupBy('departments.id', 'departments.Name')
+            ->where('officials.Status', 'N')
+            ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $department = $department->map(function ($dept) {
+            $dept->Name = collect(explode(' ', $dept->Name))
+                ->map(function ($word) {
+                    return substr($word, 0, 1);
+                })->implode('');
+            return $dept;
+        });
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(department $department)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(department $department)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, department $department)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(department $department)
-    {
-        //
+        return $department;
     }
 }

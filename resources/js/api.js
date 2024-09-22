@@ -28,10 +28,10 @@ api.interceptors.response.use(
     return response;
   },
   function (error) {
-    if (error.response.status == 401) {
+    if (error.response.status === 401) {
+      router.push({ name: "Login" });
       localStorage.removeItem("token");
       store.dispatch('removeToken', 0);
-      router.push({ name: "Login" });
     }
     return Promise.reject(error);
   }

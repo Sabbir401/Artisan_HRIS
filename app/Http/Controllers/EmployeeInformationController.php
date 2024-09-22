@@ -11,9 +11,11 @@ use App\Models\company;
 use App\Models\country;
 use App\Models\religion;
 use App\Models\blood_group;
+use App\Models\department;
 use App\Models\emp_img;
 use App\Models\employee;
 use App\Models\employee_type;
+use App\Models\leave;
 use App\Models\official;
 use App\Models\territory;
 use Illuminate\Support\Facades\DB;
@@ -149,5 +151,20 @@ class EmployeeInformationController extends Controller
         $tree = $this->buildTree($officials, 0); // Assuming 1 is the root EID (head of the company)
 
         return ["tree" => $tree];
+    }
+
+
+
+    public function dashCount()
+    {
+        $department = department::count();
+        $employee =  employee::count();
+        $leave = leave::count();
+
+        return [
+            'departmentCount' => $department,
+            'employee' => $employee,
+            'leave' => $leave,
+        ];
     }
 }

@@ -79,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/territory', [EmployeeInformationController::class, 'getTerritory']);
     Route::get('/area', [EmployeeInformationController::class, 'getArea']);
     Route::get('/empimg/{id}', [EmployeeInformationController::class, 'fetchEmployeeImg']);
+    Route::get('/dashboard-count', [EmployeeInformationController::class, 'dashCount']);
 
     //Nominee Controller
     Route::post('/nominee', [NomineeController::class, 'store']);
@@ -137,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/department', [DepartmentController::class, 'index']);
     Route::get('/designation', [DesignationController::class, 'index']);
     Route::get('/designation/{id}', [DesignationController::class, 'show']);
+    Route::get('/dept-chart', [DepartmentController::class, 'deptForChart']);
 
 
     Route::post('/attendence', [AttendenceController::class, 'store']);
@@ -164,12 +166,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-user-permission/{id}', [PageController::class, 'getUserPermission']);
     Route::get('/navigation', [NavigationController::class, "getUserNavigation"]);
     Route::get('/getNavigation', [NavigationController::class, "TreeNavigation"]);
+    Route::get('/getTree', [NavigationController::class, "getSubordinateTree"]);
 
 
 
     Route::get('/user', [AuthController::class, "getUser"]);
     Route::get('/user/{id}', [AuthController::class, "fetchUser"]);
     Route::get('/current-user', [AuthController::class, "currentUser"]);
+    Route::get('/logout', [AuthController::class, "logout"]);
 
     //asset
     Route::get('/get-asset', [AssetController::class, "getAsset"]);

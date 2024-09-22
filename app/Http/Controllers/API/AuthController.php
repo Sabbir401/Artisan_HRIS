@@ -177,6 +177,14 @@ class AuthController extends Controller
     }
 
 
+    public function logout()
+    {
+        Session::flush();
+        return response()->json('Your Session is over');
+    }
+
+
+
     public function fetchUser($id)
     {
         $user = User::select('users.name', 'users.EID')

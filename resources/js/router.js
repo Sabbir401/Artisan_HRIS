@@ -5,6 +5,14 @@ import store from "./store/store";
 
 const routes = [
     {
+        path: "/",
+        name: "Navbar",
+        component: () => import('./layouts/Navbar.vue'),
+        meta: {
+            requireAuth: true,
+        },
+    },
+    {
         path: "/login",
         name: "Login",
         component: () => import('./pages/login.vue'),
@@ -13,6 +21,14 @@ const routes = [
         path: "/home",
         name: "Home",
         component: () => import('./pages/home.vue'),
+        meta: {
+            requireAuth: true,
+        },
+    },
+    {
+        path: "/dashboard",
+        name: "Dashboard",
+        component: () => import('./pages/dashboard.vue'),
         meta: {
             requireAuth: true,
         },
@@ -141,7 +157,8 @@ const routes = [
     {
         path: "/report/attendenceReport",
         name: "AttendenceReport",
-        component: () => import('./pages/report/AttendenceReport.vue'),
+        // component: () => import('./pages/report/AttendenceReport.vue'),
+        component: () => import('./pages/report/treeStructure.vue'),
         meta: {
             requireAuth: true,
             pageId: 12,

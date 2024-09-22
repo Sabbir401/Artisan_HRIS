@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\employee;
 use App\Models\navigation;
+use App\Models\official;
 use App\Models\user_has_page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -38,12 +39,12 @@ class NavigationController extends Controller
     public function getUserNavigation()
     {
         $userId = Session::get('User_Id');
-        if(!$userId){
+        if (!$userId) {
             return redirect('/login');
         }
 
         $permissions = user_has_page::where('EID', $userId)->pluck('Page_Id');
-        
+
         $decodedPermissions = [];
         foreach ($permissions as $permission) {
             $decodedPermissions = array_merge($decodedPermissions, json_decode($permission, true));

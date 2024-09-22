@@ -64,10 +64,9 @@ class LeaveController extends Controller
             }
 
             return response()->json($leaves);
+        } else {
+            return response()->json('User not found');
         }
-
-
-        return response()->json(['message' => 'User not found'], 404);
     }
 
     /**

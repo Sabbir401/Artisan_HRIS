@@ -149,7 +149,7 @@ class AttendenceController extends Controller
     public function attendenceEmployee()
     {
         $userId = Session::get('User_Id');
-        if($userId === 13){
+        if($userId === 13 || $userId === 1){
             $userId = 208;
         }
 

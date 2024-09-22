@@ -58,7 +58,11 @@
                     v-if="notification.length > 0"
                 >
                     <div v-for="item in notification" :key="item.id">
-                        <li class="dropdown-item" v-if="item.Status === 'Pending'" @click="router.push('/leave/leave-status')">
+                        <li
+                            class="dropdown-item"
+                            v-if="item.Status === 'Pending'"
+                            @click="router.push('/leave/leave-status')"
+                        >
                             {{ item.Full_Name }} Requested a Leave
                         </li>
                     </div>
@@ -121,16 +125,23 @@ const getData = async () => {
         ]);
         user.value = responseUser.data;
         notification.value = responseNotification.data;
-        if (user.value === "logout") {
-            logout();
-        }
     } catch (err) {
         error.value = err.message || "Error fetching data";
     }
+    if (user.value === "logout") {
+        console.log("hi");
+        logout();
+    }
 };
 
-function logout() {
+const logout = async () => {
     store.dispatch("removeToken", 0);
+    localStorage.removeItem("token");
+    try {
+        await api.get('/logout');
+    } catch (error) {
+        console.error("Error logging out", error);
+    }
     router.push({ name: "Login" });
 }
 
