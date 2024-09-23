@@ -12,17 +12,6 @@ const form = reactive({
 });
 const err = ref("");
 
-// const login = async () => {
-//     await api.post("/login", form).then((res) => {
-//         if (res.data.success) {
-//             store.dispatch("setToken", res.data.data.token);
-//             store.dispatch("setPermissions", res.data.data.permissions);
-//             router.push({ name: "Home" });
-//         } else {
-//             err.value = 'res.data.errors';
-//         }
-//     });
-// };
 
 const login = async () => {
     try {
@@ -30,7 +19,7 @@ const login = async () => {
         if (res.data.success) {
             store.dispatch("setToken", res.data.data.token);
             store.dispatch("setPermissions", res.data.data.permissions);
-            router.push({ name: "Home" });
+            router.push({ name: "Dashboard" });
         } else {
             err.value = res.data.message || "An unknown error occurred";
         }
@@ -73,6 +62,12 @@ const login = async () => {
 </template>
 
 <style scoped>
+.form-wrapper{
+    background-image: url('/public/storage/uploads/bg-img-1.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
 .form-wrapper {
     display: flex;
     justify-content: center;

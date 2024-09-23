@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('Name',150);
+            $table->string('Short_Name',100);
             $table->unsignedBigInteger('created_by')->nullable();
         });
     }

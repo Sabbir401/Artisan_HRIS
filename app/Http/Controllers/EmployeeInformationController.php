@@ -158,13 +158,16 @@ class EmployeeInformationController extends Controller
     public function dashCount()
     {
         $department = department::count();
-        $employee =  employee::count();
+        $employee_act =  official::where('Status', 'N')->count();
         $leave = leave::count();
+        $employee_inact = official::where('Status', 'Y')->count();
+        
 
         return [
             'department' => $department,
-            'employee' => $employee,
+            'employee_act' => $employee_act,
             'leave' => $leave,
+            'employee_inact' => $employee_inact,
         ];
     }
 }

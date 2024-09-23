@@ -67,6 +67,33 @@ const initializeChart = async () => {
     } else {
         console.error("Canvas element not found.");
     }
+
+    function getRandomColor() {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    var pie = document.getElementById("myPieChart");
+
+    var backgroundColors = department.value.map(() => getRandomColor());
+
+    // Create the pie chart
+    var myPieChart = new Chart(pie, {
+        type: "pie",
+        data: {
+            labels: department.value.map((dept) => dept.Name),
+            datasets: [
+                {
+                    data: department.value.map((dept) => dept.employee_count),
+                    backgroundColor: backgroundColors, // Use random colors
+                },
+            ],
+        },
+    });
 };
 
 onMounted(() => initializeChart());
@@ -83,8 +110,8 @@ onMounted(() => initializeChart());
                 <div class="col-xl-3 col-md-6">
                     <div class="card bg-dark text-white mb-4">
                         <div class="card-body d-flex justify-content-between">
-                            <div>Total Employee</div>
-                            <div>{{ dashCount.employee }}</div>
+                            <div>Total Active Employee</div>
+                            <div>{{ dashCount.employee_act }}</div>
                         </div>
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
@@ -122,12 +149,17 @@ onMounted(() => initializeChart());
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <div class="card bg-success text-white mb-4">
-                        <div class="card-body">Success Card</div>
+                        <div class="card-body d-flex justify-content-between">
+                            <div>Total Inactive Employee</div>
+                            <div>{{ dashCount.employee_inact }}</div>
+                        </div>
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
                         >
-                            <a class="small text-white stretched-link" href="#"
-                                >View Details</a
+                            <router-link
+                                class="small text-white stretched-link"
+                                :to="{ name: 'EmployeeList' }"
+                                >View Details</router-link
                             >
                             <div class="small text-white">
                                 <i class="fas fa-angle-right"></i>
@@ -144,7 +176,9 @@ onMounted(() => initializeChart());
                         <div
                             class="card-footer d-flex align-items-center justify-content-between"
                         >
-                        <router-link class="small text-white stretched-link" :to="{ name: 'LeaveStatus' }"
+                            <router-link
+                                class="small text-white stretched-link"
+                                :to="{ name: 'LeaveStatus' }"
                                 >View Details</router-link
                             >
                             <div class="small text-white">
@@ -173,12 +207,12 @@ onMounted(() => initializeChart());
                 <div class="col-xl-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="fas fa-chart-area me-1"></i>
-                            Area Chart Example
+                            <i class="fas fa-chart-pie me-1"></i>
+                            Department Wise Employee
                         </div>
                         <div class="card-body">
                             <canvas
-                                id="myAreaChart"
+                                id="myPieChart"
                                 width="100%"
                                 height="40"
                             ></canvas>
