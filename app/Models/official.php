@@ -18,6 +18,7 @@ class official extends Model
         'Territory_Id',
         'Supervisor_Id',
         'DOJ',
+        'DOL',
         'Provation_period',
         'DOC',
         'Job_Location_Id',

@@ -228,6 +228,7 @@ class EmployeeController extends Controller
             ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
             ->where('departments.id', '=', $id)
             ->where('officials.Status', '=', 'N')
+            ->orderby('employees.Full_Name', 'asc')
             ->get();
 
         if (!$employee) {

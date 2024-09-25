@@ -22,20 +22,6 @@ class AuthController extends Controller
         return response()->json($user);
     }
 
-    public function currentUser()
-    {
-        $userId = Session::get('User_Id');
-        if ($userId) {
-            $user = employee::select('employees.Full_Name', 'emp_imgs.img_url')
-                ->leftjoin('emp_imgs', 'employees.id', '=', 'emp_imgs.EID')
-                ->where('employees.id', '=', $userId)
-                ->first();
-            return response()->json($user);
-        } else {
-            return response()->json('logout');
-        }
-    }
-
     public function register(Request $request)
     {
         $name = employee::where('id', $request->input('employee_Id'))->pluck('Full_Name')->first();

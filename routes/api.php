@@ -66,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     //Employee Information
+    Route::get('/current-user', [EmployeeInformationController::class, "currentUser"]);
     Route::get('/branch', [EmployeeInformationController::class, 'getBranch']);
     Route::get('/blood', [EmployeeInformationController::class, 'getBloodGroup']);
     Route::get('/board', [EmployeeInformationController::class, 'getBoard']);
@@ -172,7 +173,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', [AuthController::class, "getUser"]);
     Route::get('/user/{id}', [AuthController::class, "fetchUser"]);
-    Route::get('/current-user', [AuthController::class, "currentUser"]);
     Route::get('/logout', [AuthController::class, "logout"]);
 
     //asset

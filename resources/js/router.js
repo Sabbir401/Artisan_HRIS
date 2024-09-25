@@ -27,6 +27,14 @@ const routes = [
         },
     },
     {
+        path: "/",
+        name: "Dashboard",
+        component: () => import('./pages/dashboard.vue'),
+        meta: {
+            requireAuth: true,
+        },
+    },
+    {
         path: "/setup/employee/employeeList",
         name: "EmployeeList",
         component: () => import('./pages/setup/employee/employeeList.vue'),

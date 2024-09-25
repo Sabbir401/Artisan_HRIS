@@ -4,24 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\area;
 use App\Models\board;
+use App\Models\leave;
 use App\Models\scale;
 use App\Models\branch;
 use App\Models\degree;
 use App\Models\company;
 use App\Models\country;
-use App\Models\religion;
-use App\Models\blood_group;
-use App\Models\department;
 use App\Models\emp_img;
 use App\Models\employee;
-use App\Models\employee_type;
-use App\Models\leave;
 use App\Models\official;
+use App\Models\religion;
 use App\Models\territory;
+use App\Models\department;
+use App\Models\blood_group;
+use App\Models\employee_type;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class EmployeeInformationController extends Controller
 {
+    public function currentUser()
+    {
+        $userId = Session::get('User_Id');
+        if ($userId) {
+            $user = employee::select('employees.Full_Name', 'emp_imgs.img_url')
+                ->leftjoin('emp_imgs', 'employees.id', '=', 'emp_imgs.EID')
+                ->where('employees.id', '=', $userId)
+                ->first();
+            return response()->json($user);
+        } else {
+            return response()->json('logout');
+        }
+    }
+
+
     public function getBloodGroup()
     {
         $blood = blood_group::all();

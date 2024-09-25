@@ -119,7 +119,7 @@ const pendingCount = computed(
 
 const getData = async () => {
     try {
-        const [responseUser, responseNotification] = await Promise.all([
+        const [responseUser, responseNotification] = await axios.all([
             api.get("/current-user"),
             api.get("/all-leave"),
         ]);
@@ -129,7 +129,6 @@ const getData = async () => {
         error.value = err.message || "Error fetching data";
     }
     if (user.value === "logout") {
-        console.log("hi");
         logout();
     }
 };
@@ -139,6 +138,7 @@ const logout = async () => {
     localStorage.removeItem("token");
     try {
         await api.get('/logout');
+        window.location.reload();
     } catch (error) {
         console.error("Error logging out", error);
     }
