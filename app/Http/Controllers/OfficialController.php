@@ -6,6 +6,7 @@ use App\Models\employee;
 use App\Models\official;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class OfficialController extends Controller
 {
@@ -42,6 +43,7 @@ class OfficialController extends Controller
             'employeeTypeId.required' => 'The Employee Type is required.',
         ]);
 
+        $userId = Session::get('User_Id');
         $store = official::create([
             'EID' => $request->input('eid'),
             'Department_Id' => $request->input('departmentId'),
@@ -58,6 +60,8 @@ class OfficialController extends Controller
             'Job_Location_Id' => $request->input('jobLocation'),
             'Shift' => $request->input('shift'),
             'Status' => $request->input('status'),
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
 
         $response = [
@@ -109,6 +113,8 @@ class OfficialController extends Controller
         ->select('id')
         ->where('EID', $id)
         ->first();
+
+        $userId = Session::get('User_Id');
         
         $official = official::find($official_id->id);
         DB::beginTransaction();
@@ -127,6 +133,7 @@ class OfficialController extends Controller
             'Job_Location_Id' => $request->input('jobLocation'),
             'Shift' => $request->input('shift'),
             'Status' => $request->input('status'),
+            'updated_by' => $userId,
         ]);
         $response = [
             'success' => true,

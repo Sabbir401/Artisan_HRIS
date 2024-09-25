@@ -17,6 +17,8 @@ class training_info extends Model
         'Year',
         'Country_Id',
         'Remarks',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

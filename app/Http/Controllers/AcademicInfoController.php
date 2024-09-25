@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\academic_info;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class AcademicInfoController extends Controller
 {
@@ -31,6 +32,7 @@ class AcademicInfoController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = Session::get('User_Id');
         $academic = academic_info::create([
             'EID' => $request->input('eid'),
             'Level_of_Education_Id' => $request->input('degreeId'),
@@ -42,6 +44,8 @@ class AcademicInfoController extends Controller
             'Year_of_Passing' => $request->input('yop'),
             'Acheivement' => $request->input('acheivement'),
             'Remarks' => $request->input('remarks'),
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
         $response = [
             'success'   =>  true,
@@ -78,6 +82,7 @@ class AcademicInfoController extends Controller
      */
     public function update(Request $request, $id)
     {
+    $userId = Session::get('User_Id');
         $academic = academic_info::findorfail($id);
         $academic->update([
             'Level_of_Education_Id' => $request->input('degreeId'),
@@ -89,6 +94,7 @@ class AcademicInfoController extends Controller
             'Year_of_Passing' => $request->input('yop'),
             'Acheivement' => $request->input('acheivement'),
             'Remarks' => $request->input('remarks'),
+            'updated_by' => $userId,
         ]);
         $response = [
             'success'   =>  true,

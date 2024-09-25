@@ -14,5 +14,7 @@ class holiday extends Model
         'From_Date',
         'To_Date',
         'Duration',
+        'created_by',
+        'updated_by',
     ];
 }

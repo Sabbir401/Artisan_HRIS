@@ -75,6 +75,7 @@ class EmployeeController extends Controller
         $file_path = null;
 
         DB::beginTransaction();
+        $userId = Session::get('User_Id');
         $employee = employee::create([
             'Company_Id' => $request->input('companyId'),
             'Employee_Id' => $request->input('employeeId'),
@@ -97,6 +98,8 @@ class EmployeeController extends Controller
             'Religion_Id' => $request->input('religion'),
             'Nationality' => $request->input('nationality'),
             'NID' => $request->input('nid'),
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
 
         if ($request->hasFile('file')) {
@@ -299,6 +302,7 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         // try {
+        $userId = Session::get('User_Id');
         DB::beginTransaction();
         $employee = employee::find($id);
         $employee->update([
@@ -323,6 +327,7 @@ class EmployeeController extends Controller
             'Religion_Id' => $request->input('religion'),
             'Nationality' => $request->input('nationality'),
             'NID' => $request->input('nid'),
+            'updated_by' => $userId,
         ]);
 
         if ($request->hasFile('file')) {

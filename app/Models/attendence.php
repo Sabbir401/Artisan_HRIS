@@ -14,6 +14,8 @@ class attendence extends Model
         'Time_In',
         'Time_Out',
         'Status',
+        'created_by',
+        'updated_by',
 
     ];
 

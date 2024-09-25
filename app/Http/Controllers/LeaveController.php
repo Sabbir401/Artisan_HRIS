@@ -97,6 +97,7 @@ class LeaveController extends Controller
         $file_path = null;
 
         DB::beginTransaction();
+        $userId = Session::get('User_Id');
         if ($request->hasFile('file')) {
             $request->validate([
                 'file' => 'required|mimes:jpg,jpeg,png,csv,txt,xlx,xls,xlsx,pdf|max:512'
@@ -112,6 +113,8 @@ class LeaveController extends Controller
                 'Purpose' => $request->input('Purpose'),
                 'Status' => $request->input('Status'),
                 'Attachment_Url' => '/storage/' . $file_path,
+                'created_by' => $userId,
+                'updated_by' => 0,
             ]);
         } else {
             $leave = leave::create([
@@ -121,6 +124,8 @@ class LeaveController extends Controller
                 'To_Date' => $request->input('To_Date'),
                 'Purpose' => $request->input('Purpose'),
                 'Status' => $request->input('Status'),
+                'created_by' => $userId,
+                'updated_by' => 0,
             ]);
         }
 
@@ -194,8 +199,10 @@ class LeaveController extends Controller
     public function update(Request $request, $id)
     {
         $leave = leave::find($id);
+        $userId = Session::get('User_Id');
         $leave->update([
             'Status' => $request->input('Status'),
+            'updated_by' => $userId,
         ]);
 
         return response()->json('Updated Successfully');

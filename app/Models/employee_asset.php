@@ -14,6 +14,8 @@ class employee_asset extends Model
         'Serial_Number',
         'Quantity',
         'Date',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

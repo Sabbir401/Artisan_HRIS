@@ -78,6 +78,7 @@ const generateDays = () => {
     daysInMonth.value = Array.from({ length: days }, (v, k) => k + 1);
 
     hotSettings.value.colHeaders = [
+        "Id",
         "Department",
         "Employee Name",
         "Designation",
@@ -86,6 +87,7 @@ const generateDays = () => {
     ];
 
     hotSettings.value.columns = [
+        { type: "text", data: "id", readOnly: true },
         { type: "text", data: "department", readOnly: true },
         { type: "text", data: "Full_Name", readOnly: true },
         { type: "text", data: "designation", readOnly: true },
@@ -112,7 +114,7 @@ const hotSettings = ref({
 
     fixedColumnsStart: 5,
     rowHeaders: true,
-    colHeaders: ["Department", "Employee Name", "Designation"],
+    colHeaders: ["Id", "Department", "Employee Name", "Designation", "Branch"],
     columns: [
         { type: "text", data: "id", readOnly: true },
         { type: "text", data: "department", readOnly: true },
@@ -120,10 +122,10 @@ const hotSettings = ref({
         { type: "text", data: "designation", readOnly: true },
         { type: "text", data: "branch", readOnly: true },
     ],
-    // hiddenColumns: {
-    //     columns: [0],
-    //     indicators: false,
-    // },
+    hiddenColumns: {
+        columns: [0],
+        indicators: false,
+    },
     minSpareRows: 1,
     minSpareCols: 1,
     manualColumnResize: true,
@@ -232,7 +234,7 @@ const fetchMachineAttendence = async () => {
 const saveData = async () => {
     const data = hotTableComponent.value.hotInstance.getData();
     const attendanceData = data.map((row) => {
-        const attendance = row.slice(4); // only attendance status values
+        const attendance = row.slice(5); // only attendance status values
         return {
             id: row[0],
             attendance: attendance,

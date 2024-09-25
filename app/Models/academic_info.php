@@ -18,7 +18,9 @@ class academic_info extends Model
         'Result',
         'Year_of_Passing',
         'Acheivement',
-        'Remarks'
+        'Remarks',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

@@ -21,6 +21,8 @@ class work_experience extends Model
         'Responsibilities',
         'Last_Salary',
         'Continuing',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

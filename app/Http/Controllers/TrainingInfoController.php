@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\training_info;
 use Illuminate\Http\Request;
+use App\Models\training_info;
+use Illuminate\Support\Facades\Session;
 
 class TrainingInfoController extends Controller
 {
@@ -30,6 +31,7 @@ class TrainingInfoController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = Session::get('User_Id');
             $traning = training_info::create([
             'EID' => $request->input('eid'),
             'Training_Title' => $request->input('traningTitle'),
@@ -38,6 +40,8 @@ class TrainingInfoController extends Controller
             'Duration' => $request->input('duration'),
             'Year' => $request->input('year'),
             'Remarks' => $request->input('remarks'),
+            'created_by' => $userId,
+            'updated_by' => 0,
 
         ]);
         $response = [
@@ -73,6 +77,7 @@ class TrainingInfoController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $userId = Session::get('User_Id');
         $training = training_info::findorfail($id);
         $training->update([
             'Training_Title' => $request->input('traningTitle'),
@@ -81,6 +86,7 @@ class TrainingInfoController extends Controller
             'Duration' => $request->input('duration'),
             'Year' => $request->input('year'),
             'Remarks' => $request->input('remarks'),
+            'updated_by' => $userId,
         ]);
         $response = [
             'success'   =>  true,

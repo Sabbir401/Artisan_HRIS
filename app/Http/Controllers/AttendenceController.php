@@ -61,6 +61,7 @@ class AttendenceController extends Controller
 
     public function store(Request $request)
     {
+        $userId = Session::get('User_Id');
         $attendanceData = $request->input('attendanceData');
         $year = now()->year;
         $month = $request->input('month');
@@ -78,7 +79,7 @@ class AttendenceController extends Controller
                         ],
                         [
                             'Status' => $status,
-                            // 'Time' => now()->toTimeString()
+                            'created_by' => $userId,
                         ]
                     );
                 }
@@ -149,7 +150,7 @@ class AttendenceController extends Controller
     public function attendenceEmployee()
     {
         $userId = Session::get('User_Id');
-        if($userId === 13 || $userId === 1){
+        if ($userId === 13 || $userId === 1) {
             $userId = 208;
         }
 

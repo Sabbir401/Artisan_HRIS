@@ -12,6 +12,8 @@ class user_has_page extends Model
     protected $fillable = [
         'Page_Id',
         'EID',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

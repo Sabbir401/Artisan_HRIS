@@ -15,6 +15,8 @@ class child extends Model
         'Email',
         'Contact_No',
         'DOB',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

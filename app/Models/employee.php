@@ -30,6 +30,8 @@ class employee extends Model
         'Religion_Id',
         'Nationality',
         'NID',
+        'created_by',
+        'updated_by',
     ];
 
     public function company()

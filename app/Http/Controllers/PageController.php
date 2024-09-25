@@ -34,10 +34,14 @@ class PageController extends Controller
 
     public function store(Request $request)
     {
+        $userId = Session::get('User_Id');
         DB::beginTransaction();
         $store = user_has_page::updateOrCreate(
             ['EID' => $request->input('employee_Id')],
-            ['Page_Id' => json_encode($request->input('permissions'))]
+            [
+                'Page_Id' => json_encode($request->input('permissions')),
+                'created_by' => $userId
+            ]
         );
 
         $response = [

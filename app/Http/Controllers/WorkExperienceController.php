@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\work_experience;
 use Illuminate\Http\Request;
+use App\Models\work_experience;
+use Illuminate\Support\Facades\Session;
 
 class WorkExperienceController extends Controller
 {
@@ -30,6 +31,7 @@ class WorkExperienceController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = Session::get('User_Id');
         $traning = work_experience::create([
             'EID' => $request->input('eid'),
             'Company_Name' => $request->input('companyName'),
@@ -43,6 +45,8 @@ class WorkExperienceController extends Controller
             'Responsibilities' => $request->input('jobRes'),
             'Last_Salary' => $request->input('lastSalary'),
             'Continuing' => $request->input('continuing'),
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
         $response = [
             'success'   =>  true,
@@ -57,7 +61,7 @@ class WorkExperienceController extends Controller
      */
     public function show($id)
     {
-        $work = work_experience::where('EID',$id)->get();;
+        $work = work_experience::where('EID', $id)->get();;
 
         return response()->json($work);
     }
@@ -77,6 +81,7 @@ class WorkExperienceController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $userId = Session::get('User_Id');
         $work = work_experience::findorfail($id);
         $work->update([
             'Company_Name' => $request->input('companyName'),
@@ -90,6 +95,7 @@ class WorkExperienceController extends Controller
             'Responsibilities' => $request->input('jobRes'),
             'Last_Salary' => $request->input('lastSalary'),
             'Continuing' => $request->input('continuing'),
+            'updated_by' => $userId,
         ]);
         $response = [
             'success'   =>  true,

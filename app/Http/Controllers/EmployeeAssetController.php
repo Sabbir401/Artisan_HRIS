@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\asset;
 use App\Models\employee;
-use App\Models\employee_asset;
 use Illuminate\Http\Request;
+use App\Models\employee_asset;
+use Illuminate\Support\Facades\Session;
 
 class EmployeeAssetController extends Controller
 {
@@ -26,12 +27,15 @@ class EmployeeAssetController extends Controller
     }
 
     public function store(Request $request){
+        $userId = Session::get('User_Id');
         $asset = employee_asset::create([
             'EID' => $request->employee_Id,
             'Device_Id' => $request->device_id,
             'Date' => $request->date,
             'Serial_Number' => $request->serialNumber,
             'Quantity' => $request->quantity,
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
 
         return response()->json([
@@ -55,6 +59,7 @@ class EmployeeAssetController extends Controller
     }
 
     public function update(Request $request, $id){
+        $userId = Session::get('User_Id');
         $employee_asset = employee_asset::find($id);
 
         $employee_asset->update([
@@ -63,6 +68,7 @@ class EmployeeAssetController extends Controller
             'Date' => $request->date,
             'Serial_Number' => $request->serialNumber,
             'Quantity' => $request->quantity,
+            'updated_by' => $userId,
         ]);
 
         return response()->json([

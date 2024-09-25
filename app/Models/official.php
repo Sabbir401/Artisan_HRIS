@@ -23,6 +23,8 @@ class official extends Model
         'Job_Location_Id',
         'Shift',
         'Status',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()

@@ -6,6 +6,8 @@ use App\Models\child;
 use App\Models\nominee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+
 
 class NomineeController extends Controller
 {
@@ -40,6 +42,7 @@ class NomineeController extends Controller
             'contactNo.required' => 'The Contact No is required.',
         ]);
 
+        $userId = Session::get('User_Id');
         $store = nominee::create([
             'EID' => $request->input('eid'),
             'Nominee_Name' => $request->input('nomineeName'),
@@ -49,6 +52,8 @@ class NomineeController extends Controller
             'NID' => $request->input('nid'),
             'Share' => $request->input('share'),
             'Personal_Address' => $request->input('presentAddress'),
+            'created_by' => $userId,
+            'updated_by' => 0,
         ]);
 
         $response = [
@@ -85,6 +90,7 @@ class NomineeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $userId = Session::get('User_Id');
         $nominee = DB::table('nominees')
             ->select('id')
             ->where('EID', $id)
@@ -99,6 +105,7 @@ class NomineeController extends Controller
                 'NID' => $request->input('nid'),
                 'Share' => $request->input('share'),
                 'Personal_Address' => $request->input('presentAddress'),
+                'updated_by' => $userId,
             ]);
 
             $response = [

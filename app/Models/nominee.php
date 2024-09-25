@@ -17,6 +17,8 @@ class nominee extends Model
         'NID',
         'Share',
         'Personal_Address',
+        'created_by',
+        'updated_by',
     ];
 
     public function employee()
