@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
-import api from '@/api';
+import api from "@/api";
 
 import { useRoute } from "vue-router";
 
@@ -115,6 +115,9 @@ watch(empEdit, async (newEmpData) => {
         newEmpData.Shift
             ? (official.value.shift = newEmpData.Shift)
             : (official.value.shift = "");
+        newEmpData.DOL
+            ? (official.value.dol = newEmpData.DOL)
+            : (official.value.dol = "");
         inactive.value = newEmpData.Status === "Y";
     }
 });
@@ -478,53 +481,53 @@ onMounted(() => getData());
 <style scoped>
 /* Input fields */
 .form-control {
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
 .form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
 }
 
 /* Select fields */
 .form-control {
-  padding-right: 2.5rem; /* Extra space for the dropdown arrow */
+    padding-right: 2.5rem; /* Extra space for the dropdown arrow */
 }
 
 /* Dropdown arrow disable */
 .form-control::-ms-expand {
-  display: none;
+    display: none;
 }
 
 /* Custom select styles */
 .form-control {
-  background: #f9f9f9;
-  background-size: 1rem 1rem;
+    background: #f9f9f9;
+    background-size: 1rem 1rem;
 }
 
 /* File upload styling */
 .form-control[type="file"] {
-  border: 1px solid #ddd;
-  padding: 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f8f9fa;
 }
 
 /* File upload hover effect */
 .form-control[type="file"]:hover {
-  border-color: #007bff;
+    border-color: #007bff;
 }
 
 /* Textarea */
 textarea.form-control {
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  resize: vertical;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    resize: vertical;
 }
 </style>

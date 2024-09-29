@@ -128,6 +128,7 @@ class OfficialController extends Controller
             'Employee_type_Id' => $request->input('employeeTypeId'),
             'Supervisor_Id' => $request->input('supervisorId'),
             'DOJ' => $request->input('doj'),
+            'DOL' => $request->input('dol'),
             'Provation_period' => $request->input('provationPeriod'),
             'DOC' => $request->input('doc'),
             'Job_Location_Id' => $request->input('jobLocation'),
