@@ -78,19 +78,32 @@ const filteredData = computed(() => {
 
 const totalLeaveDays = computed(() => {
     const totals = {};
-    leave.value.forEach((l) => {
-        const typeName = l.leave_type.Name;
 
-        if (!totals[typeName]) {
-            totals[typeName] = {
+    if (Array.isArray(leaveType.value) && leaveType.value.length > 0) {
+        leaveType.value.forEach((type) => {
+            totals[type.Name] = {
                 totalDays: 0,
-                maxDays: l.leave_type.Max_Days,
+                maxDays: type.Max_Days || 0,
             };
-        }
-        if (l.Status === "Approved") {
-            totals[typeName].totalDays += l.daysBetween;
-        }
-    });
+        });
+
+        employee.value.forEach((item) => {
+            const typeName = item.leave_type;
+            if (!totals[typeName]) {
+                totals[typeName] = {
+                    totalDays: 0,
+                    maxDays: item.Max_Days,
+                };
+            }
+
+            totals[typeName].maxDays = item.Max_Days;
+
+            if (item.Status === "Approved") {
+                totals[typeName].totalDays += item.daysBetween;
+            }
+        });
+    }
+
     return totals;
 });
 

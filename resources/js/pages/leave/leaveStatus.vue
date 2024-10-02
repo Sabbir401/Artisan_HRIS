@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, defineAsyncComponent } from "vue";
 import Swal from "sweetalert2";
 import api from "../../api";
 
@@ -12,12 +12,45 @@ const selectedType = ref("");
 const selectedStatus = ref("");
 const selectedDept = ref("");
 const allLeave = ref([]);
+const selectedStore = ref(null);
+
+const stausComponent = defineAsyncComponent(() =>
+    import("../leave/component/statusUpdateForm.vue")
+);
 
 const form = ref({
     department: "",
     Employee_Id: "",
+    From_Date: "",
+    To_Date: "",
+    Leave_Type_Id: "",
     Status: "",
 });
+
+const statusId = ref();
+const statusModel = ref(false);
+
+const statusOpen = () => {
+    statusModel.value = true;
+};
+const statusClose = () => {
+    statusModel.value = false;
+};
+
+const editLeaveStatus = async (id) => {
+    const leaveData = allLeave.value.find((leave) => leave.id === id);
+    if (leaveData) {
+        selectedStore.value = leaveData; // Set the leave data for editing
+        statusId.value = id;
+        statusOpen();
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Unable to find leave data.",
+        });
+    }
+};
 
 const getData = async () => {
     try {
@@ -35,64 +68,6 @@ const getData = async () => {
     }
 };
 
-const leaveApproved = async (id) => {
-    try {
-        const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to approve the leave?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes",
-            cancelButtonText: "No",
-            reverseButtons: true,
-        });
-
-        if (result.isConfirmed) {
-            form.value.Status = "Approved";
-            const response = await api.put(`/leave/${id}`, form.value);
-            Swal.fire({
-                position: "middle",
-                icon: "success",
-                title: "The application has been saved",
-                showConfirmButton: false,
-                timer: 1500,
-            });
-            getData();
-        }
-    } catch (err) {
-        error.value = err.response.data.errors;
-    }
-};
-
-
-const leaveReject = async (id) => {
-    try {
-        const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to approve the leave?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes",
-            cancelButtonText: "No",
-            reverseButtons: true,
-        });
-
-        if (result.isConfirmed) {
-            form.value.Status = "Rejected";
-            const response = await api.put(`/leave/${id}`, form.value);
-            Swal.fire({
-                position: "middle",
-                icon: "success",
-                title: "The application has been rejected",
-                showConfirmButton: false,
-                timer: 1500,
-            });
-            getData();
-        }
-    } catch (err) {
-        error.value = err.response.data.errors;
-    }
-};
 
 const filteredData = computed(() => {
     return allLeave.value.filter((item) => {
@@ -155,6 +130,15 @@ onMounted(() => getData());
 </script>
 
 <template>
+    <component
+        v-if="statusModel"
+        :is="stausComponent"
+        :isOpen="statusModel"
+        :editStore="selectedStore"
+        :stId="statusId"
+        @modal-close="statusClose"
+        name="first-modal"
+    />
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="container">
             <div class="card">
@@ -302,7 +286,7 @@ onMounted(() => getData());
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table text-center">
                             <thead>
                                 <tr>
                                     <th>S/N</th>
@@ -327,9 +311,7 @@ onMounted(() => getData());
                                     <td>{{ l.Full_Name }}</td>
                                     <td>{{ l.From_Date }}</td>
                                     <td>{{ l.To_Date }}</td>
-                                    <td>
-                                        {{ l.daysBetween }}
-                                    </td>
+                                    <td>{{ l.daysBetween }}</td>
                                     <td>{{ l.leave_type }}</td>
                                     <td>{{ l.Status }}</td>
                                     <td v-if="l.Attachment_Url">
@@ -348,15 +330,9 @@ onMounted(() => getData());
                                     <td>
                                         <button
                                             class="custom-btn btn-13 mx-1 px-1"
-                                            @click="leaveApproved(l.id)"
+                                            @click="editLeaveStatus(l.id)"
                                         >
                                             <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <button
-                                            class="custom-btn btn-12 mx-1"
-                                            @click="leaveReject(l.id)"
-                                        >
-                                            <i class="fa-solid fa-xmark"></i>
                                         </button>
                                     </td>
                                 </tr>

@@ -16,9 +16,7 @@
 
     <!-- <link href="https://cdn.datatables.net/v/dt/dt-2.0.8/datatables.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/v/dt/dt-2.0.8/datatables.min.js"></script> -->
-    <script>
-        const nav = {!! json_encode($nav) !!};
-    </script>
+
     
 </head>
 

@@ -12,10 +12,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-      config.headers["X-CSRF-TOKEN"] = csrfToken.content;
-    }
+    // const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    // if (csrfToken) {
+    //   config.headers["X-CSRF-TOKEN"] = csrfToken.content;
+    // }
     return config;
   },
   function (error) {
