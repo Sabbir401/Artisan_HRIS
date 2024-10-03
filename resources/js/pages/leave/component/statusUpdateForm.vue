@@ -3,11 +3,11 @@ import { ref, defineProps, getCurrentInstance, watch } from "vue";
 import Swal from "sweetalert2";
 import api from "../../../api";
 
-const { isOpen, editStore, updateinfo, holiId } = defineProps([
+const { isOpen, editStore, leave_type, stId } = defineProps([
     "isOpen",
     "editStore",
-    "updateinfo",
-    "holiId",
+    "leave_type",
+    "stId",
 ]);
 console.log(editStore);
 
@@ -15,9 +15,10 @@ const form = ref({
     Full_Name: "",
     From_Date: "",
     To_Date: "",
-    Leave_Type_Id: "",
+    Leave_Type: "",
     Status: "",
     duration: "",
+    Purpose: "",
 });
 
 watch(
@@ -27,9 +28,10 @@ watch(
             form.value.Full_Name = item.Full_Name || "";
             form.value.From_Date = item.From_Date || "";
             form.value.To_Date = item.To_Date || "";
-            form.value.Leave_Type_Id = item.Leave_Type_Id || "";
+            form.value.Leave_Type = item.leave_id || "";
             form.value.Status = item.Status || "";
             form.value.duration = item.daysBetween || "";
+            form.value.Purpose = item.Purpose || "";
         }
     },
     { immediate: true }
@@ -50,24 +52,13 @@ const computeDuration = async () => {
 
 const instance = getCurrentInstance();
 
-const resetForm = () => {
-    Object.keys(form.value).forEach((key) => {
-        if (typeof form.value[key] === "string") {
-            form.value[key] = "";
-        } else {
-            form.value[key] = null; // or any other default value you prefer
-        }
-    });
-};
-
 const closeModal = () => {
     instance.emit("modal-close");
 };
 
-
 const update = async () => {
     try {
-        const response = await api.put(`/holiday/${holiId}`, form.value);
+        const response = await api.put(`/leave/${stId}`, form.value);
         if (response.data.success) {
             instance.emit("modal-close");
             Swal.fire({
@@ -82,7 +73,6 @@ const update = async () => {
         console.error("Error updating store:", error);
     }
 };
-
 </script>
 
 <template>
@@ -104,7 +94,63 @@ const update = async () => {
                                     type="text"
                                     class="form-control"
                                     v-model="form.Full_Name"
+                                    readonly
                                 />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 mb-2">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1"
+                                    >Leave Type</label
+                                >
+                                <select
+                                    name=""
+                                    id=""
+                                    class="form-control"
+                                    v-model="form.Leave_Type"
+                                >
+                                    <option
+                                        v-for="item in leave_type"
+                                        :key="item.id"
+                                        :value="item.id"
+                                    >
+                                        {{ item.Name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 mb-2">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1"
+                                    >Leave Status</label
+                                >
+                                <select
+                                    name=""
+                                    id=""
+                                    class="form-control"
+                                    v-model="form.Status"
+                                >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Purpose</label>
+                                <textarea
+                                    type="text"
+                                    class="form-control"
+                                    v-model="form.Purpose"
+                                    rows="2"
+                                    readonly
+                                ></textarea>
                             </div>
                         </div>
                     </div>
@@ -138,16 +184,15 @@ const update = async () => {
 
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12 mt-2">
-                                <p><strong>No of Days: {{ form.duration }}</strong></p>
+                            <p>
+                                <strong>No of Days: {{ form.duration }}</strong>
+                            </p>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <button
-                            type="submit"
-                            class="custom-btn btn-13 p-2"
-                        >
-                            <i class="fa-solid fa-check"></i> | {{ updateinfo }}
+                        <button type="submit" class="custom-btn btn-13 p-2">
+                            <i class="fa-solid fa-check"></i> | Save
                         </button>
                         <button
                             type="reset"

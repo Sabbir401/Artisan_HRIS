@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\leave;
 use App\Models\holiday;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -26,7 +27,7 @@ class LeaveController extends Controller
 
     public function getSubordinates($userId)
     {
-        $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leave_types.Name', 'designations.Name as designation', 'departments.Name as department', 'leave_types.Name as leave_type')
+        $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
             ->join('employees', 'leaves.EID', '=', 'employees.id')
             ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
             ->join('officials', 'officials.EID', '=', 'employees.id')
@@ -199,13 +200,19 @@ class LeaveController extends Controller
     public function update(Request $request, $id)
     {
         $leave = leave::find($id);
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $leave->update([
+            'Leave_Type_Id' => $request->input('Leave_Type'),
             'Status' => $request->input('Status'),
+            'From_Date' => $request->input('From_Date'),
+            'To_Date' => $request->input('To_Date'),
             'updated_by' => $userId,
         ]);
-
-        return response()->json('Updated Successfully');
+        $response = [
+            'success'   =>  true,
+            'message'   =>  'Successfully Updated',
+        ];
+        return response()->json($response);
     }
 
 

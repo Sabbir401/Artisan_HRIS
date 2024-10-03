@@ -5,14 +5,13 @@ import Swal from "sweetalert2";
 import api from "@/api";
 
 const department = ref([]);
-const empp = ref([]);
+const employee = ref([]);
 const emp_img = ref([]);
 
 const error = ref([]);
 const fileSizeWarning = ref();
 const leaveType = ref();
 const leave = ref([]);
-const leaveSummery = ref([]);
 const selectedType = ref("");
 const selectedStatus = ref("");
 
@@ -44,7 +43,7 @@ const getData = async () => {
 const getEmployee = async (id) => {
     try {
         const response = await api.get(`/emp/${id}`);
-        empp.value = response.data;
+        employee.value = response.data;
     } catch (error) {
         console.error("Error updating store:", error);
     }
@@ -52,14 +51,12 @@ const getEmployee = async (id) => {
 
 const getEmployeeImg = async (id) => {
     try {
-        const [responseimg, responseleave, responseSummery] = await axios.all([
+        const [responseimg, responseleave] = await axios.all([
             api.get(`/empimg/${id}`),
             api.get(`/leave/${id}`),
-            api.get(`/leave-summery/${id}`),
         ]);
         emp_img.value = responseimg.data;
         leave.value = responseleave.data;
-        leaveSummery.value = responseSummery.data;
     } catch (error) {
         console.error("Error updating store:", error);
     }
@@ -87,7 +84,7 @@ const totalLeaveDays = computed(() => {
             };
         });
 
-        employee.value.forEach((item) => {
+        leave.value.forEach((item) => {
             const typeName = item.leave_type;
             if (!totals[typeName]) {
                 totals[typeName] = {
@@ -129,7 +126,7 @@ const getImage = (e) => {
 };
 
 const submit = async () => {
-    form.value.Status = 'Pending';
+    form.value.Status = "Pending";
     const config = {
         headers: {
             "Content-Type": "multipart/form-data",
@@ -233,7 +230,7 @@ onMounted(() => getData());
                                                 "
                                             >
                                                 <option
-                                                    v-for="e in empp"
+                                                    v-for="e in employee"
                                                     :key="e.id"
                                                     :value="e.id"
                                                 >
@@ -350,15 +347,8 @@ onMounted(() => getData());
                             </form>
                         </div>
 
-                        <div class="col-lg-3 d-flex justify-content-center">
-                            <img
-                                :src="emp_img ? emp_img.img_url : ''"
-                                height="100%"
-                                width="100%"
-                                style="max-height: 200px; max-width: 200px"
-                            />
-                        </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-4 p-4">
+                            <h5 class="text-center">Leave Summary</h5>
                             <table class="leave-status">
                                 <thead class="table_head">
                                     <tr>
@@ -379,6 +369,16 @@ onMounted(() => getData());
                                 </tr>
                             </table>
                         </div>
+                        <div class="col-lg-3 d-flex justify-content-center">
+                            <div v-if="emp_img">
+                                <img
+                                    :src="emp_img.img_url"
+                                    height="100%"
+                                    width="100%"
+                                    style="max-height: 220px; max-width: 220px"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -386,7 +386,7 @@ onMounted(() => getData());
             <div class="card mt-4">
                 <div class="card-body">
                     <div class="text-center">
-                        <h1 class="mb-5">Leave Summary</h1>
+                        <h1 class="mb-5">Leave List</h1>
                     </div>
 
                     <div class="row d-flex justify-content-end">

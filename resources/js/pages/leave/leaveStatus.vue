@@ -18,15 +18,6 @@ const stausComponent = defineAsyncComponent(() =>
     import("../leave/component/statusUpdateForm.vue")
 );
 
-const form = ref({
-    department: "",
-    Employee_Id: "",
-    From_Date: "",
-    To_Date: "",
-    Leave_Type_Id: "",
-    Status: "",
-});
-
 const statusId = ref();
 const statusModel = ref(false);
 
@@ -73,7 +64,7 @@ const filteredData = computed(() => {
     return allLeave.value.filter((item) => {
         return (
             (selectedType.value === "" ||
-                item.leave_type === selectedType.value) &&
+                item.Leave_Type === selectedType.value) &&
             (selectedStatus.value === "" ||
                 item.Status === selectedStatus.value) &&
             (selectedDept.value === "" ||
@@ -135,6 +126,7 @@ onMounted(() => getData());
         :is="stausComponent"
         :isOpen="statusModel"
         :editStore="selectedStore"
+        :leave_type="leaveType"
         :stId="statusId"
         @modal-close="statusClose"
         name="first-modal"
@@ -312,7 +304,7 @@ onMounted(() => getData());
                                     <td>{{ l.From_Date }}</td>
                                     <td>{{ l.To_Date }}</td>
                                     <td>{{ l.daysBetween }}</td>
-                                    <td>{{ l.leave_type }}</td>
+                                    <td>{{ l.Leave_Type }}</td>
                                     <td>{{ l.Status }}</td>
                                     <td v-if="l.Attachment_Url">
                                         <button
@@ -332,7 +324,7 @@ onMounted(() => getData());
                                             class="custom-btn btn-13 mx-1 px-1"
                                             @click="editLeaveStatus(l.id)"
                                         >
-                                            <i class="fa-solid fa-check"></i>
+                                            <i class="fa-regular fa-pen-to-square"></i>
                                         </button>
                                     </td>
                                 </tr>
