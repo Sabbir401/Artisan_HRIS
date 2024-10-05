@@ -25,7 +25,7 @@ class LeaveController extends Controller
         return response()->json($leave);
     }
 
-    public function getSubordinates($userId)
+    public function getAllLeave()
     {
         $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
             ->join('employees', 'leaves.EID', '=', 'employees.id')
@@ -33,28 +33,52 @@ class LeaveController extends Controller
             ->join('officials', 'officials.EID', '=', 'employees.id')
             ->join('departments', 'officials.Department_Id', '=', 'departments.id')
             ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
-            ->where('officials.Supervisor_Id', '=', $userId)
             ->where('officials.Status', '=', 'N')
             ->orderby('leaves.id', 'desc')
             ->get();
 
-        $allSubordinates = [];
+        return $subordinates;
+    }
 
-        foreach ($subordinates as $subordinate) {
-            $allSubordinates[] = $subordinate;
-            $allSubordinates = array_merge($allSubordinates, $this->getSubordinates($subordinate->id));
+
+    public function getSubordinates($userId)
+    {
+        $subordinates = [];
+        $queue = [$userId];
+
+        while (!empty($queue)) {
+            $currentUserId = array_shift($queue);
+            $subordinateleave = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
+                ->leftjoin('employees', 'leaves.EID', '=', 'employees.id')
+                ->leftjoin('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+                ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
+                ->leftjoin('departments', 'officials.Department_Id', '=', 'departments.id')
+                ->leftjoin('designations', 'officials.Designation_Id', '=', 'designations.id')
+                ->where('officials.Supervisor_Id', '=', $currentUserId)
+                ->where('officials.Status', '=', 'N')
+                ->orderby('leaves.id', 'desc')
+                ->get();
+
+            foreach ($subordinateleave as $subordinate) {
+                $subordinates[] = $subordinate;
+                $queue[] = $subordinate->EID;
+            }
         }
 
-        return $allSubordinates;
+        return $subordinates;
     }
 
 
     public function allLeave()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
 
         if ($userId) {
-            $leaves = $this->getSubordinates($userId);
+            if ($userId === 13 || $userId === 1) {
+                $leaves = $this->getAllLeave();
+            } else {
+                $leaves = $this->getSubordinates($userId);
+            }
 
             foreach ($leaves as $leave) {
                 $startDate = new \DateTime($leave->From_Date);

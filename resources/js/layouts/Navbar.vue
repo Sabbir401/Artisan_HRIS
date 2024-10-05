@@ -56,6 +56,7 @@
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown"
                     v-if="notification.length > 0"
+                    style="background-color: #c7d1cb;"
                 >
                     <div v-for="item in notification" :key="item.id">
                         <li

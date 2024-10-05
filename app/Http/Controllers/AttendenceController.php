@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use App\Models\zkt_attendence;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class AttendenceController extends Controller
@@ -149,7 +150,7 @@ class AttendenceController extends Controller
 
     public function attendenceEmployee()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         if ($userId === 13 || $userId === 1) {
             $userId = 208;
         }
@@ -164,95 +165,94 @@ class AttendenceController extends Controller
     }
 
 
-    // public function fetchAttendence()
-    // {
-    //     // Fetch all holidays
-    //     $holidays = holiday::all();
+    public function fetchAttendence()
+    {
+        // Fetch all holidays
+        $holidays = holiday::all();
 
-    //     // Fetch all approved leaves with leave types
-    //     $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.Name')
-    //         ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
-    //         ->where('leaves.Status', '=', 'Approved')
-    //         ->get();
+        // Fetch all approved leaves with leave types
+        $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.Name')
+            ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+            ->where('leaves.Status', '=', 'Approved')
+            ->get();
 
-    //     // Fetch all attendance records and group by User_id and date
-    //     $attendances = zkt_attendence::all()->groupBy(['User_id', 'date']);
+        // Fetch all attendance records and group by User_id and date
+        $attendances = zkt_attendence::all()->groupBy(['User_id', 'date']);
 
-    //     // Determine the minimum and maximum dates from the attendance data
-    //     $minDate = zkt_attendence::min('date');
-    //     $maxDate = min(zkt_attendence::max('date'), date('Y-m-d')); // Stop at the current date
+        // Determine the minimum and maximum dates from the attendance data
+        $minDate = zkt_attendence::min('date');
+        $maxDate = min(zkt_attendence::max('date'), date('Y-m-d')); // Stop at the current date
 
-    //     // Iterate through each user
-    //     foreach ($attendances as $userId => $userAttendances) {
-    //         // Loop through each date from minimum to maximum
-    //         $currentDate = $minDate;
-    //         while ($currentDate <= $maxDate) {
-    //             // Format the date to YYYY-MM-DD
-    //             $date = $currentDate;
+        // Iterate through each user
+        foreach ($attendances as $userId => $userAttendances) {
+            // Loop through each date from minimum to maximum
+            $currentDate = $minDate;
+            while ($currentDate <= $maxDate) {
+                // Format the date to YYYY-MM-DD
+                $date = $currentDate;
 
-    //             // Check if there is any attendance record for the user on this date
-    //             if (isset($userAttendances[$date])) {
-    //                 $attendanceRecords = $userAttendances[$date];
+                // Check if there is any attendance record for the user on this date
+                if (isset($userAttendances[$date])) {
+                    $attendanceRecords = $userAttendances[$date];
 
-    //                 // Extract the first punch-in time and last punch-out time for each user each day
-    //                 $timeIn = $attendanceRecords->sortBy('time')->first()->time;
-    //                 $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
+                    // Extract the first punch-in time and last punch-out time for each user each day
+                    $timeIn = $attendanceRecords->sortBy('time')->first()->time;
+                    $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
 
-    //                 // Determine status based on the first punch-in time
-    //                 $status = 'A'; // Default status is Absent
-    //                 if ($timeIn) {
-    //                     $status = ($timeIn > '11:00:00') ? 'L' : 'P';
-    //                 }
-    //             } else {
-    //                 // Check if the date falls within any leave period
-    //                 $isOnLeave = $leaves->first(function ($leave) use ($userId, $date) {
-    //                     return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
-    //                 });
+                    // Determine status based on the first punch-in time
+                    $status = 'A'; // Default status is Absent
+                    if ($timeIn) {
+                        $status = ($timeIn > '11:00:00') ? 'L' : 'P';
+                    }
+                } else {
+                    // Check if the date falls within any leave period
+                    $isOnLeave = $leaves->first(function ($leave) use ($userId, $date) {
+                        return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
+                    });
 
-    //                 if ($isOnLeave) {
-    //                     $status = $isOnLeave->Name; // Set status to leave type
-    //                     $timeIn = $timeOut = null;
-    //                 } else {
-    //                     // Check if the date falls within any holiday period
-    //                     $isHoliday = $holidays->contains(function ($holiday) use ($date) {
-    //                         return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
-    //                     });
+                    if ($isOnLeave) {
+                        $status = $isOnLeave->Name; // Set status to leave type
+                        $timeIn = $timeOut = null;
+                    } else {
+                        // Check if the date falls within any holiday period
+                        $isHoliday = $holidays->contains(function ($holiday) use ($date) {
+                            return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
+                        });
 
-    //                     if ($isHoliday) {
-    //                         $status = 'H';
-    //                         $timeIn = $timeOut = null;
-    //                     } else {
-    //                         $status = 'A';
-    //                         $timeIn = $timeOut = null;
-    //                     }
-    //                 }
-    //             }
+                        if ($isHoliday) {
+                            $status = 'H';
+                            $timeIn = $timeOut = null;
+                        } else {
+                            $status = 'A';
+                            $timeIn = $timeOut = null;
+                        }
+                    }
+                }
 
-    //             // Update or create the attendance record in the attendence table
-    //             attendence::updateOrCreate(
-    //                 [
-    //                     'EID' => $userId,
-    //                     'Date' => $date,
-    //                 ],
-    //                 [
-    //                     'Time_In' => $timeIn,
-    //                     'Time_Out' => $timeOut,
-    //                     'Status' => $status,
-    //                 ]
-    //             );
+                // Update or create the attendance record in the attendence table
+                attendence::updateOrCreate(
+                    [
+                        'EID' => $userId,
+                        'Date' => $date,
+                    ],
+                    [
+                        'Time_In' => $timeIn,
+                        'Time_Out' => $timeOut,
+                        'Status' => $status,
+                    ]
+                );
 
-    //             // Move to the next day
-    //             $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-    //         }
-    //     }
+                // Move to the next day
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+        }
 
-    //     return response()->json(['message' => 'Attendance records processed successfully']);
-    // }
+        return response()->json(['message' => 'Attendance records processed successfully']);
+    }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
+
     public function edit(Request $request)
     {
         $EID = $request->input('Employee_Id');
@@ -268,91 +268,94 @@ class AttendenceController extends Controller
         return response()->json($attendances);
     }
 
-    public function fetchAttendence()
-{
-    // Step 1: Get the latest date processed in the 'attendence' table
-    $lastProcessedDate = attendence::max('Date') ?? '1970-01-01';
 
-    // Step 2: Determine the range of dates to process based on new attendance data
-    $minDate = zkt_attendence::where('date', '>', $lastProcessedDate)->min('date');
-    $maxDate = min(zkt_attendence::max('date'), date('Y-m-d')); // Stop at the current date
+    // public function fetchAttendence()
+    // {
+    //     // Step 1: Get the latest date processed in the 'attendence' table
+    //     $lastProcessedDate = attendence::max('Date') ?? '1970-01-01';
 
-    if (!$minDate || $minDate > $maxDate) {
-        return response()->json(['message' => 'No new attendance records to process']);
-    }
+    //     // Step 2: Determine the range of dates to process based on new attendance data
+    //     $minDate = zkt_attendence::where('date', '>', $lastProcessedDate)->min('date');
+    //     $maxDate = min(zkt_attendence::max('date'), date('Y-m-d')); // Stop at the current date
 
-    // Step 3: Fetch required data only for the date range
-    $holidays = holiday::where('From_Date', '<=', $maxDate)->where('To_Date', '>=', $minDate)->get();
-    $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.Name')
-        ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
-        ->where('leaves.Status', '=', 'Approved')
-        ->where(function ($query) use ($minDate, $maxDate) {
-            $query->whereBetween('leaves.From_Date', [$minDate, $maxDate])
-                ->orWhereBetween('leaves.To_Date', [$minDate, $maxDate])
-                ->orWhereRaw('? BETWEEN leaves.From_Date AND leaves.To_Date', [$minDate])
-                ->orWhereRaw('? BETWEEN leaves.From_Date AND leaves.To_Date', [$maxDate]);
-        })
-        ->get();
+    //     if (!$minDate || $minDate > $maxDate) {
+    //         return response()->json(['message' => 'No new attendance records to process']);
+    //     }
 
-    $attendances = zkt_attendence::whereBetween('date', [$minDate, $maxDate])->get()->groupBy(['User_id', 'date']);
+    //     // Step 3: Fetch required data only for the date range
+    //     $holidays = holiday::where('From_Date', '<=', $maxDate)->where('To_Date', '>=', $minDate)->get();
+    //     $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.Name', 'leave_types.Short_Name')
+    //         ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+    //         ->where('leaves.Status', '=', 'Approved')
+    //         ->where(function ($query) use ($minDate, $maxDate) {
+    //             $query->whereBetween('leaves.From_Date', [$minDate, $maxDate])
+    //                 ->orWhereBetween('leaves.To_Date', [$minDate, $maxDate])
+    //                 ->orWhereRaw('? BETWEEN leaves.From_Date AND leaves.To_Date', [$minDate])
+    //                 ->orWhereRaw('? BETWEEN leaves.From_Date AND leaves.To_Date', [$maxDate]);
+    //         })
+    //         ->get();
 
-    // Step 4: Process the attendance data for each user and date in the range
-    foreach ($attendances as $userId => $userAttendances) {
-        // Track dates already processed for this user
-        $processedDates = attendence::where('EID', $userId)->pluck('Date')->toArray();
+    //     $attendances = zkt_attendence::whereBetween('date', [$minDate, $maxDate])->get()->groupBy(['User_id', 'date']);
 
-        foreach ($userAttendances as $date => $attendanceRecords) {
-            // Skip if the date is already processed for this user
-            if (in_array($date, $processedDates)) {
-                continue;
-            }
+    //     // Step 4: Process the attendance data for each user and date in the range
+    //     foreach ($attendances as $userId => $userAttendances) {
+    //         // Track dates already processed for this user
+    //         $processedDates = attendence::where('EID', $userId)->pluck('Date')->toArray();
 
-            // Extract the first punch-in time and last punch-out time for each user each day
-            $timeIn = $attendanceRecords->sortBy('time')->first()->time;
-            $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
+    //         foreach ($userAttendances as $date => $attendanceRecords) {
+    //             // Skip if the date is already processed for this user
+    //             if (in_array($date, $processedDates)) {
+    //                 continue;
+    //             }
 
-            // Determine status based on the first punch-in time
-            $status = $timeIn ? (($timeIn > '11:00:00') ? 'L' : 'P') : 'A';
+    //             // Extract the first punch-in time and last punch-out time for each user each day
+    //             $timeIn = $attendanceRecords->sortBy('time')->first()->time;
+    //             $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
 
-            // Check if the date falls within any leave period
-            $leaveRecord = $leaves->first(function ($leave) use ($userId, $date) {
-                return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
-            });
+    //             // Determine day of the week (1 = Monday, ..., 5 = Friday, ..., 7 = Sunday)
+    //             $dayOfWeek = date('N', strtotime($date));
 
-            if ($leaveRecord) {
-                $status = $leaveRecord->Name; // Set status to leave type
-                $timeIn = $timeOut = null;
-            } else {
-                // Check if the date is a holiday
-                $isHoliday = $holidays->contains(function ($holiday) use ($date) {
-                    return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
-                });
+    //             // Initial status is set based on the day of the week
+    //             $status = $dayOfWeek == 5 ? 'F' : ($timeIn ? (($timeIn > '11:00:00') ? 'L' : 'P') : 'A');
 
-                if ($isHoliday) {
-                    $status = 'H';
-                    $timeIn = $timeOut = null;
-                }
-            }
+    //             // Check if the date falls within any leave period
+    //             $leaveRecord = $leaves->first(function ($leave) use ($userId, $date) {
+    //                 return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
+    //             });
 
-            // Prepare data for batch insertion
-            $data[] = [
-                'EID' => $userId,
-                'Date' => $date,
-                'Time_In' => $timeIn,
-                'Time_Out' => $timeOut,
-                'Status' => $status,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
-    }
+    //             if ($leaveRecord) {
+    //                 $status = $leaveRecord->Short_Name; // Set status to leave type
+    //                 $timeIn = $timeOut = null;
+    //             } else {
+    //                 // Check if the date is a holiday
+    //                 $isHoliday = $holidays->contains(function ($holiday) use ($date) {
+    //                     return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
+    //                 });
 
-    // Step 5: Bulk insert the processed data for efficiency
-    if (!empty($data)) {
-        attendence::insert($data);
-    }
+    //                 if ($isHoliday) {
+    //                     $status = 'H'; // Set status to Holiday
+    //                     $timeIn = $timeOut = null;
+    //                 }
+    //             }
 
-    return response()->json(['message' => 'Attendance records processed successfully']);
-}
+    //             // Prepare data for batch insertion
+    //             $data[] = [
+    //                 'EID' => $userId,
+    //                 'Date' => $date,
+    //                 'Time_In' => $timeIn,
+    //                 'Time_Out' => $timeOut,
+    //                 'Status' => $status,
+    //                 'created_at' => now(),
+    //                 'updated_at' => now(),
+    //             ];
+    //         }
+    //     }
 
+    //     // Step 5: Bulk insert the processed data for efficiency
+    //     if (!empty($data)) {
+    //         attendence::insert($data);
+    //     }
+
+    //     return response()->json(['message' => 'Attendance records processed successfully']);
+    // }
 }
