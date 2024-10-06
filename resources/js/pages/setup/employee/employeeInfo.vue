@@ -20,6 +20,7 @@ const employee = ref({
     spouseName: "",
     maritalStatus: "",
     dob: "",
+    birth_date: "",
     pob: "",
     presentAddress: "",
     permanentAddress: "",
@@ -76,6 +77,9 @@ watch(
             newEmpData.DOB
                 ? (employee.value.dob = newEmpData.DOB)
                 : (employee.value.dob = "");
+            newEmpData.Birth_Date
+                ? (employee.value.birth_date = newEmpData.Birth_Date)
+                : (employee.value.birth_date = "");
             newEmpData.Place_of_Birth
                 ? (employee.value.pob = newEmpData.Place_of_Birth)
                 : (employee.value.pob = "");
@@ -393,6 +397,19 @@ onMounted(() => getData());
                                         id="disabledTextInput"
                                         aria-describedby="emailHelp"
                                         v-model="employee.dob"
+                                    />
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <label for="exampleInputEmail1" class=""
+                                        >Birth Date (Actual)
+                                    </label
+                                    >
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="disabledTextInput"
+                                        aria-describedby="emailHelp"
+                                        v-model="employee.birth_date"
                                     />
                                 </div>
                             </div>

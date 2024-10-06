@@ -4,7 +4,7 @@ import store from "./store/store";
 
 const routes = [
     {
-        path: "/login",
+        path: "/",
         name: "Login",
         component: () => import("./pages/login.vue"),
     },
@@ -24,14 +24,14 @@ const routes = [
             requireAuth: true,
         },
     },
-    {
-        path: "/",
-        name: "Dashboard",
-        component: () => import("./pages/dashboard.vue"),
-        meta: {
-            requireAuth: true,
-        },
-    },
+    // {
+    //     path: "/",
+    //     name: "Dashboard",
+    //     component: () => import("./pages/dashboard.vue"),
+    //     meta: {
+    //         requireAuth: true,
+    //     },
+    // },
     {
         path: "/setup/employee/employeeList",
         name: "EmployeeList",

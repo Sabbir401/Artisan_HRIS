@@ -18,6 +18,7 @@ class employee extends Model
         'Spouse_Name',
         'Marital_Status',
         'DOB',
+        'Birth_Date',
         'Place_of_Birth',
         'Present_Address',
         'Permanent_Address',

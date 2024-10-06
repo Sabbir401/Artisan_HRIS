@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import api from "@/api";
@@ -11,7 +11,6 @@ const form = reactive({
     password: "",
 });
 const err = ref("");
-
 
 const login = async () => {
     try {
@@ -28,6 +27,12 @@ const login = async () => {
             error.response?.data?.message || "An unexpected error occurred";
     }
 };
+
+onMounted(() => {
+    if (store.getters.getToken) {
+        router.push({ name: "Dashboard" });
+    }
+});
 </script>
 
 <template>
@@ -62,8 +67,8 @@ const login = async () => {
 </template>
 
 <style scoped>
-.form-wrapper{
-    background-image: url('/public/storage/uploads/bg-img-1.jpg');
+.form-wrapper {
+    background-image: url("/public/storage/uploads/bg-img-1.jpg");
     background-size: cover;
     background-repeat: no-repeat;
 }
