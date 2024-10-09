@@ -27,7 +27,7 @@ class EmployeeInformationController extends Controller
     {
         $userId = Session::get('User_Id');
         if ($userId) {
-            $user = employee::select('employees.Full_Name', 'emp_imgs.img_url')
+            $user = employee::select('employees.id', 'employees.Full_Name', 'emp_imgs.img_url')
                 ->leftjoin('emp_imgs', 'employees.id', '=', 'emp_imgs.EID')
                 ->where('employees.id', '=', $userId)
                 ->first();

@@ -102,6 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leave-type', [LeaveTypeController::class, 'index']);
     Route::get('/leave-summery/{id}', [LeaveController::class, 'leaveSummery']);
     Route::get('/all-leave', [LeaveController::class, 'allLeave']);
+    Route::get('/destroy-notification', [LeaveController::class, '/destroyNotification']);
 
     Route::get('/holiday', [LeaveController::class, 'fetchHoliday']);
     Route::post('/holiday', [LeaveController::class, 'insertHoliday']);

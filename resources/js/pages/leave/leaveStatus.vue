@@ -26,6 +26,7 @@ const statusOpen = () => {
 };
 const statusClose = () => {
     statusModel.value = false;
+    getData();
 };
 
 const editLeaveStatus = async (id) => {
@@ -131,211 +132,138 @@ onMounted(() => getData());
         @modal-close="statusClose"
         name="first-modal"
     />
-    <div class="col-lg-12 grid-margin stretch-card">
-        <div class="container">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-center">
-                        <h1 class="mb-5">Applicant Leave status</h1>
-                    </div>
-                    <div class="d-flex">
-                        <div class="col-lg-8 px-2">
-                            <section
-                                class="section about-section gray-bg"
-                                id="about"
-                            >
-                                <div class="container">
-                                    <div
-                                        class="row align-items-center flex-row-reverse"
-                                    >
-                                        <div class="col-lg-7">
-                                            <div
-                                                class="about-text go-to"
-                                                v-for="(
-                                                    item, index
-                                                ) in employee"
-                                                :key="item.id"
-                                            >
-                                                <h3
-                                                    class="dark-color"
-                                                    v-if="index === 0"
-                                                >
-                                                    {{ item.Full_Name || "" }}
-                                                </h3>
-                                                <h6
-                                                    class="theme-color lead"
-                                                    v-if="index === 0"
-                                                >
-                                                    {{ item.designation || "" }}
-                                                </h6>
-                                                <h6
-                                                    class="theme-color lead"
-                                                    v-if="index === 0"
-                                                >
-                                                    {{ item.department || "" }}
-                                                </h6>
+    <div class="container-fluid px-3">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="container">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h1 class="mb-4">Applicant Leave Status</h1>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8 col-md-12 px-2 mb-4">
+                                <section class="section about-section gray-bg" id="about">
+                                    <div class="container">
+                                        <div class="row align-items-center flex-row-reverse">
+                                            <div class="col-lg-7 col-md-6 mb-4 mb-md-0">
+                                                <div class="about-text go-to" v-for="(item, index) in employee" :key="item.id">
+                                                    <h3 class="dark-color" v-if="index === 0">{{ item.Full_Name || "" }}</h3>
+                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.designation || "" }}</h6>
+                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.department || "" }}</h6>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div
-                                            class="col-lg-5"
-                                            v-for="(item, index) in employee"
-                                            :key="item.id"
-                                        >
-                                            <div
-                                                class="about-avatar"
-                                                v-if="index === 0"
-                                            >
-                                                <img
-                                                    :src="
-                                                        item.img_url
-                                                            ? item.img_url
-                                                            : ''
-                                                    "
-                                                    height="100%"
-                                                    width="100%"
-                                                    style="
-                                                        max-height: 150px;
-                                                        max-width: 130px;
-                                                    "
-                                                />
+                                            <div class="col-lg-5 col-md-6" v-for="(item, index) in employee" :key="item.id">
+                                                <div class="about-avatar" v-if="index === 0">
+                                                    <img :src="item.img_url ? item.img_url : ''" class="img-fluid" style="max-height: 150px; max-width: 130px;" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </section>
-                        </div>
+                                </section>
+                            </div>
 
-                        <div class="col-lg-4 px-2">
-                            <table class="leave-status">
-                                <thead class="table_head">
-                                    <tr>
-                                        <th>Leave Type</th>
-                                        <th>Entitled</th>
-                                        <th>Enjoyed</th>
-                                        <th>Balance</th>
-                                    </tr>
-                                </thead>
-                                <tr
-                                    v-for="(info, typeName) in totalLeaveDays"
-                                    :key="typeName"
-                                >
-                                    <th>{{ typeName }}</th>
-                                    <td>{{ info.maxDays }}</td>
-                                    <td>{{ info.totalDays }}</td>
-                                    <td>{{ info.maxDays - info.totalDays }}</td>
-                                </tr>
-                            </table>
+                            <div class="col-lg-4 col-md-12 px-2 mb-4">
+                                <table class="leave-status">
+                                    <thead class="table_head">
+                                        <tr>
+                                            <th>Leave Type</th>
+                                            <th>Entitled</th>
+                                            <th>Enjoyed</th>
+                                            <th>Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(info, typeName) in totalLeaveDays" :key="typeName">
+                                            <th>{{ typeName }}</th>
+                                            <td>{{ info.maxDays }}</td>
+                                            <td>{{ info.totalDays }}</td>
+                                            <td>{{ info.maxDays - info.totalDays }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card mt-4">
-                <div class="card-body">
-                    <div class="text-center">
-                        <h1 class="mb-5">Leave Summary</h1>
-                    </div>
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <h1 class="mb-5">Leave Summary</h1>
+                        </div>
 
-                    <div class="row d-flex justify-content-end">
-                        <div class="col-lg-3">
-                            <label for="exampleInputEmail1">Department</label>
-                            <select v-model="selectedDept" class="form-control">
-                                <option value="">All Department</option>
-                                <option
-                                    v-for="item in department"
-                                    :key="item.id"
-                                    :value="item.Name"
-                                >
-                                    {{ item.Name }}
-                                </option>
-                            </select>
+                        <div class="row d-flex justify-content-center justify-content-md-end mb-3">
+                            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                                <label>Department</label>
+                                <select v-model="selectedDept" class="form-control">
+                                    <option value="">All Department</option>
+                                    <option v-for="item in department" :key="item.id" :value="item.Name">{{ item.Name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                <label>Leave Type</label>
+                                <select v-model="selectedType" class="form-control">
+                                    <option value="">All Type</option>
+                                    <option v-for="item in leaveType" :key="item.id" :value="item.Name">{{ item.Name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                <label>Leave Status</label>
+                                <select v-model="selectedStatus" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-lg-2">
-                            <label for="exampleInputEmail1">Leave Type</label>
-                            <select v-model="selectedType" class="form-control">
-                                <option value="">All Type</option>
-                                <option
-                                    v-for="item in leaveType"
-                                    :key="item.id"
-                                    :value="item.Name"
-                                >
-                                    {{ item.Name }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2">
-                            <label for="exampleInputEmail1">Leave Status</label>
-                            <select
-                                v-model="selectedStatus"
-                                class="form-control"
-                            >
-                                <option value="">All Status</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="table-responsive">
-                        <table class="table text-center">
-                            <thead>
-                                <tr>
-                                    <th>S/N</th>
-                                    <th>Employee Name</th>
-                                    <th>From Data</th>
-                                    <th>To Date</th>
-                                    <th>Total Days</th>
-                                    <th>Leave Type</th>
-                                    <th>Status</th>
-                                    <th>Documents</th>
-                                    <th>Operation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    class="ver-align"
-                                    v-for="(l, index) in filteredData"
-                                    :key="l.id"
-                                    @click="getEmployee(l.EID)"
-                                >
-                                    <td>{{ index + 1 }}</td>
-                                    <td>{{ l.Full_Name }}</td>
-                                    <td>{{ l.From_Date }}</td>
-                                    <td>{{ l.To_Date }}</td>
-                                    <td>{{ l.daysBetween }}</td>
-                                    <td>{{ l.Leave_Type }}</td>
-                                    <td>{{ l.Status }}</td>
-                                    <td v-if="l.Attachment_Url">
-                                        <button
-                                            @click="
-                                                openAttachment(l.Attachment_Url)
-                                            "
-                                            class="custom-btn btn-15 mx-2"
-                                        >
-                                            <i
-                                                class="fa-solid fa-file-arrow-down"
-                                            ></i>
-                                        </button>
-                                    </td>
-                                    <td v-else></td>
-                                    <td>
-                                        <button
-                                            class="custom-btn btn-13 mx-1 px-1"
-                                            @click="editLeaveStatus(l.id)"
-                                        >
-                                            <i class="fa-regular fa-pen-to-square"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <thead>
+                                    <tr>
+                                        <th>S/N</th>
+                                        <th>Employee Name</th>
+                                        <th>From Date</th>
+                                        <th>To Date</th>
+                                        <th>Total Days</th>
+                                        <th>Leave Type</th>
+                                        <th>Status</th>
+                                        <th>Documents</th>
+                                        <th>Operation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="ver-align" v-for="(l, index) in filteredData" :key="l.id" @click="getEmployee(l.EID)">
+                                        <td>{{ index + 1 }}</td>
+                                        <td>{{ l.Full_Name }}</td>
+                                        <td>{{ l.From_Date }}</td>
+                                        <td>{{ l.To_Date }}</td>
+                                        <td>{{ l.daysBetween }}</td>
+                                        <td>{{ l.Leave_Type }}</td>
+                                        <td>{{ l.Status }}</td>
+                                        <td v-if="l.Attachment_Url">
+                                            <button @click="openAttachment(l.Attachment_Url)" class="btn btn-info btn-sm mx-1">
+                                                <i class="fa-solid fa-file-arrow-down"></i>
+                                            </button>
+                                        </td>
+                                        <td v-else>-</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm mx-1" @click="editLeaveStatus(l.id)">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
 
 <style>
 .leave-status th,
@@ -373,5 +301,21 @@ tr:hover {
 
 tr:hover td {
     background-color: #d3d9d9 !important;
+}
+
+.img-fluid {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 10px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
 }
 </style>

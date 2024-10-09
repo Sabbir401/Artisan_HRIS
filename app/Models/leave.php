@@ -19,6 +19,7 @@ class leave extends Model
         'Attachment_Url',
         'created_by',
         'updated_by',
+        'Notification',
     ];
 
     public function employee()

@@ -261,7 +261,7 @@ onMounted(() => getData());
                         <tr>
                             <th class="p-2">Date of joining</th>
                             <td class="p-2">{{ off.DOJ }}</td>
-                            <th class="p-2">Date of continuing</th>
+                            <th class="p-2">Date of confirmation</th>
                             <td class="p-2">{{ off.DOC }}</td>
                         </tr>
                         <tr>

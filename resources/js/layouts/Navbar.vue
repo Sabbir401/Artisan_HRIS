@@ -66,6 +66,13 @@
                         >
                             {{ item.Full_Name }} Requested a Leave
                         </li>
+                        <li
+                            class="dropdown-item"
+                            v-if="item.EID === user.id && item.Notification === '1'"
+                            @click="destroyNotification(user.id)"
+                        >
+                            {{ item.Full_Name }} Your leave has been {{ item.Status }}.
+                        </li>
                     </div>
                 </ul>
             </li>
@@ -126,6 +133,7 @@ const getData = async () => {
         ]);
         user.value = responseUser.data;
         notification.value = responseNotification.data;
+        console.log(notification.value);
     } catch (err) {
         error.value = err.message || "Error fetching data";
     }
@@ -133,6 +141,15 @@ const getData = async () => {
         logout();
     }
 };
+
+const destroyNotification = async (id) => {
+    try {
+        await api.get('/destroy-notification', id);
+        window.location.reload();
+    } catch (error) {
+    }
+}
+
 
 const logout = async () => {
     store.dispatch("removeToken", 0);

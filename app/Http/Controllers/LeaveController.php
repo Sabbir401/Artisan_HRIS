@@ -28,7 +28,7 @@ class LeaveController extends Controller
     
     public function getAllLeave()
     {
-        $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
+        $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leaves.Notification', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
             ->join('employees', 'leaves.EID', '=', 'employees.id')
             ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
             ->join('officials', 'officials.EID', '=', 'employees.id')
@@ -49,7 +49,7 @@ class LeaveController extends Controller
 
         while (!empty($queue)) {
             $currentUserId = array_shift($queue);
-            $subordinateleave = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
+            $subordinateleave = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leaves.Notification', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
                 ->leftjoin('employees', 'leaves.EID', '=', 'employees.id')
                 ->leftjoin('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
                 ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
@@ -232,6 +232,7 @@ class LeaveController extends Controller
             'From_Date' => $request->input('From_Date'),
             'To_Date' => $request->input('To_Date'),
             'updated_by' => $userId,
+            'Notification' => 1,
         ]);
         $response = [
             'success'   =>  true,
@@ -241,9 +242,9 @@ class LeaveController extends Controller
     }
 
 
-    public function destroy(leave $leave)
+    public function destroyNotification($id)
     {
-        //
+        dd($id);
     }
 
 
