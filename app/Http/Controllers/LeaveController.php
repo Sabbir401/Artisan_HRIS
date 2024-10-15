@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\leave;
 use App\Models\holiday;
+use App\Models\employee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveController extends Controller
 {
@@ -25,7 +25,7 @@ class LeaveController extends Controller
         return response()->json($leave);
     }
 
-    
+
     public function getAllLeave()
     {
         $subordinates = leave::select('leaves.id', 'employees.id as EID', 'employees.Full_Name', 'employees.Employee_Id', 'leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leaves.Notification', 'leave_types.Name as Leave_Type', 'leave_types.id as leave_id', 'designations.Name as designation', 'departments.Name as department')
@@ -123,7 +123,7 @@ class LeaveController extends Controller
         $file_path = null;
 
         DB::beginTransaction();
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         if ($request->hasFile('file')) {
             $request->validate([
                 'file' => 'required|mimes:jpg,jpeg,png,csv,txt,xlx,xls,xlsx,pdf|max:512'
@@ -244,7 +244,11 @@ class LeaveController extends Controller
 
     public function destroyNotification($id)
     {
-        dd($id);
+        $leave = leave::findorfail($id);
+        $leave::find($id);
+        $leave->update([
+            'Notification' => 0,
+        ]);
     }
 
 
@@ -327,5 +331,38 @@ class LeaveController extends Controller
             ];
             return response()->json($response);
         }
+    }
+
+    public function leaveInformation()
+    {
+        $user_id = Auth::user()->EID;
+        $employee = employee::select('employees.id', 'employees.Full_Name', 'emp_imgs.img_url', 'employees.Employee_Id', 'departments.Name as department', 'designations.name as designation')
+            ->join('emp_imgs', 'emp_imgs.EID', '=', 'employees.id')
+            ->join('officials', 'officials.EID', '=', 'employees.id')
+            ->join('departments', 'officials.Department_Id', '=', 'departments.id')
+            ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
+            ->where('employees.id', '=', $user_id)
+            ->first();
+
+        $leaves = leave::select('leaves.From_Date', 'leaves.To_Date', 'leaves.Status', 'leaves.Attachment_Url', 'leaves.Purpose', 'leave_types.Name as leave_type', 'leave_types.Max_Days')
+            ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+            ->where('leaves.EID', '=', $user_id)
+            ->orderby('leaves.id', 'desc')
+            ->get();
+
+        foreach ($leaves as $leave) {
+            $startDate = new \DateTime($leave->From_Date);
+            $endDate = new \DateTime($leave->To_Date);
+
+            $interval = $startDate->diff($endDate);
+            $leave->daysBetween = $interval->days + 1;
+        }
+
+        $response = [
+            'employee' => $employee,
+            'leaves' => $leaves,
+        ];
+
+        return response()->json($response);
     }
 }

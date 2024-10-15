@@ -6,7 +6,7 @@ use App\Models\asset;
 use App\Models\employee;
 use Illuminate\Http\Request;
 use App\Models\employee_asset;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeAssetController extends Controller
 {
@@ -27,7 +27,7 @@ class EmployeeAssetController extends Controller
     }
 
     public function store(Request $request){
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $asset = employee_asset::create([
             'EID' => $request->employee_Id,
             'Device_Id' => $request->device_id,
@@ -59,7 +59,7 @@ class EmployeeAssetController extends Controller
     }
 
     public function update(Request $request, $id){
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $employee_asset = employee_asset::find($id);
 
         $employee_asset->update([

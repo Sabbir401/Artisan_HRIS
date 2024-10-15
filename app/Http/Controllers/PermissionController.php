@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\user_has_page;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
@@ -18,7 +17,7 @@ class PermissionController extends Controller
 
     public function pages()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $permissions = user_has_page::select('Page_Id')->where('User_Id', $userId)->get();
         return response()->json($permissions);  
     }

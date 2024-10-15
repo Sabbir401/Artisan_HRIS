@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\child;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class ChildController extends Controller
 {
@@ -22,7 +21,7 @@ class ChildController extends Controller
 
     public function store(Request $request)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $store = child::create([
             'EID' => $request->input('eid'),
             'Child_Name' => $request->input('childName'),
@@ -44,7 +43,7 @@ class ChildController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $children = child::findorfail($id);
         if ($children) {
             $children->update([

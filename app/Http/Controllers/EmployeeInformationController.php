@@ -19,13 +19,13 @@ use App\Models\department;
 use App\Models\blood_group;
 use App\Models\employee_type;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeInformationController extends Controller
 {
     public function currentUser()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         if ($userId) {
             $user = employee::select('employees.id', 'employees.Full_Name', 'emp_imgs.img_url')
                 ->leftjoin('emp_imgs', 'employees.id', '=', 'emp_imgs.EID')
@@ -34,6 +34,19 @@ class EmployeeInformationController extends Controller
             return response()->json($user);
         } else {
             return response()->json('logout');
+        }
+    }
+
+    public function employeeLeave(){
+        $userId = Auth::user()->EID;
+        if ($userId) {
+            $leave = leave::select('leaves.id', 'leaves.Status', 'leaves.Notification', 'employees.Full_Name', 'leave_types.Name as leave_type')
+            ->join('employees', 'employees.id', '=', 'leaves.EID')
+            ->join('leave_types', 'leave_types.id', '=', 'leaves.Leave_Type_Id')
+            ->where('EID', $userId)->get();
+
+
+            return response()->json($leave);
         }
     }
 

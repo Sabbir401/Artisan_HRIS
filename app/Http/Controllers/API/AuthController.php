@@ -5,13 +5,11 @@ namespace App\Http\Controllers\API;
 use Validator;
 use App\Models\User;
 use App\Models\employee;
-use App\Mail\UserCreated;
 use Illuminate\Http\Request;
 use App\Models\user_has_page;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -24,21 +22,15 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $name = employee::where('id', $request->input('employee_Id'))->pluck('Full_Name')->first();
-
-        $validator = Validator::make($request->all(), [
-            'email'     =>  'required|email',
+        $request->validate([
+            'username'     =>  'required',
             'password'  =>  'required',
             'c_password' =>  'required|same:password',
+        ], [
+            'username.required' => 'Username must be Unique.',
+            'password.required' => 'Password is required.',
+            'c_password.same'   => 'The password is confirmation does not match.',
         ]);
-
-        if ($validator->fails()) {
-            $response = [
-                'success'   =>  false,
-                'message'   =>  $validator->errors()
-            ];
-            return response()->json($response, 400);
-        }
 
         $user = User::where('email', $request->input('email'))
             ->orWhere('EID', $request->input('employee_Id'))
@@ -46,7 +38,7 @@ class AuthController extends Controller
 
         if ($user) {
             // Update the existing user's details
-            $user->name = $name;
+            $user->name = $request->input('username');
             $user->password = bcrypt($request->input('password'));
             $user->save();
 
@@ -54,7 +46,7 @@ class AuthController extends Controller
         } else {
             // Create a new user if no existing user is found
             $user = User::create([
-                'name' => $name,
+                'name' => $request->input('username'),
                 'email' => $request->input('email'),
                 'EID' => $request->input('employee_Id'),
                 'password' => bcrypt($request->input('password')),
@@ -62,7 +54,6 @@ class AuthController extends Controller
 
             $message = 'User registered successfully';
             
-            Mail::to($user->email)->send(new UserCreated($user));
         }
 
         // Generate token and prepare response data
@@ -91,7 +82,7 @@ class AuthController extends Controller
             'confirm_password.same' => 'The password does not match.',
         ]);
 
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
 
         $user = User::select('users.id',  'users.name', 'users.email', 'users.EID', 'users.password')
             ->join('employees', 'users.EID', '=', 'employees.id')->where('employees.id', $userId)
@@ -121,21 +112,16 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'  =>  'required',
+            'username'  =>  'required',
             'password'  =>  'required'
         ], [
-            'email.required' => 'Email is required.',
+            'username.required' => 'Username is required.',
             'password.required' => 'Password is required.',
         ]);
-        if (Auth::attempt(['email' =>  $request->email, 'password'  =>  $request->password])) {
+        if (Auth::attempt(['name' =>  $request->username, 'password'  =>  $request->password])) {
             $user = Auth::user();
 
-            $user_id = User::where('email', $request->email)->pluck('EID')->first();
-            if ($user_id) {
-                Session::put('User_Id', $user_id);
-            } else {
-                Session::put('User_Id', 208);
-            }
+            $user_id = Auth::user()->EID;
 
             // Fetch permissions for the user
             $permissions = user_has_page::where('EID', $user_id)->pluck('Page_Id');
@@ -165,8 +151,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Session::flush();
-        return response()->json('Your Session is over');
+
     }
 
 

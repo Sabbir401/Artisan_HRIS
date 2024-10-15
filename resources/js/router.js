@@ -212,9 +212,9 @@ const routes = [
         },
     },
     {
-        path: "/leave/leave-apply",
-        name: "LeaveApply",
-        component: () => import("./pages/leave/leaveApplication.vue"),
+        path: "/leave/leave-apply-all",
+        name: "LeaveApplyAll",
+        component: () => import("./pages/leave/leaveApplicationAll.vue"),
         meta: {
             requireAuth: true,
             pageId: 15,
@@ -236,6 +236,15 @@ const routes = [
         meta: {
             requireAuth: true,
             pageId: 14,
+        },
+    },
+    {
+        path: "/leave/leave-apply",
+        name: "LeaveApply",
+        component: () => import("./pages/leave/leaveApplication.vue"),
+        meta: {
+            requireAuth: true,
+            pageId: 24,
         },
     },
 ];

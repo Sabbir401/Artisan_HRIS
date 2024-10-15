@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Employee Information
     Route::get('/current-user', [EmployeeInformationController::class, "currentUser"]);
+    Route::get('/employee-leave', [EmployeeInformationController::class, "employeeLeave"]);
     Route::get('/branch', [EmployeeInformationController::class, 'getBranch']);
     Route::get('/blood', [EmployeeInformationController::class, 'getBloodGroup']);
     Route::get('/board', [EmployeeInformationController::class, 'getBoard']);
@@ -102,7 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leave-type', [LeaveTypeController::class, 'index']);
     Route::get('/leave-summery/{id}', [LeaveController::class, 'leaveSummery']);
     Route::get('/all-leave', [LeaveController::class, 'allLeave']);
-    Route::get('/destroy-notification', [LeaveController::class, '/destroyNotification']);
+    Route::get('/destroy-notification/{id}', [LeaveController::class, 'destroyNotification']);
+    Route::get('/leave-information', [LeaveController::class, 'leaveInformation']);
 
     Route::get('/holiday', [LeaveController::class, 'fetchHoliday']);
     Route::post('/holiday', [LeaveController::class, 'insertHoliday']);

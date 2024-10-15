@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\work_experience;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class WorkExperienceController extends Controller
 {
@@ -31,7 +31,7 @@ class WorkExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $traning = work_experience::create([
             'EID' => $request->input('eid'),
             'Company_Name' => $request->input('companyName'),
@@ -81,7 +81,7 @@ class WorkExperienceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $work = work_experience::findorfail($id);
         $work->update([
             'Company_Name' => $request->input('companyName'),

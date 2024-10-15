@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\employee;
-use App\Models\navigation;
 use App\Models\official;
-use App\Models\user_has_page;
+use App\Models\navigation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use App\Models\user_has_page;
+use Illuminate\Support\Facades\Auth;
 
 class NavigationController extends Controller
 {
@@ -38,7 +38,7 @@ class NavigationController extends Controller
 
     public function getUserNavigation()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         if (!$userId) {
             return redirect('/login');
         }

@@ -14,8 +14,8 @@ const error = ref([]);
 const form = ref({
     department: "",
     employee_Id: "",
-    name: "",
     email: "",
+    username: "",
     password: "",
     c_password: "",
 });
@@ -75,16 +75,8 @@ const register = async () => {
             });
             resetForm();
         }
-    } catch (error) {
-        console.error("Error creating store:", error);
-        Swal.fire({
-            position: "middle",
-            icon: "",
-            title: "User already exist",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        resetForm();
+    } catch (e) {
+        error.value = e.response.data.errors;
     }
 };
 
@@ -96,8 +88,8 @@ onMounted(() => getData());
         <div class="form-container">
             <img
                 src="/public/storage/uploads/1718087744_artisan.png"
-                height="200px"
-                width="200px"
+                height="150px"
+                width="150px"
             />
             <form class="form" @submit.prevent="register">
                 <select
@@ -134,13 +126,23 @@ onMounted(() => getData());
                     class="input"
                     placeholder="Email"
                     v-model="form.email"
+                    readonly
                 />
+                <span class="text-danger px-4">{{ error.username ? error.username[0] : '' }}</span>
+                <input
+                    type="text"
+                    class="input"
+                    placeholder="Username"
+                    v-model="form.username"
+                />
+                <span class="text-danger px-4">{{ error.password ? error.password[0] : '' }}</span>
                 <input
                     type="password"
                     class="input"
                     placeholder="Password"
                     v-model="form.password"
                 />
+                <span class="text-danger px-4">{{ error.c_password ? error.c_password[0] : '' }}</span>
                 <input
                     type="password"
                     class="input"
@@ -181,7 +183,6 @@ onMounted(() => getData());
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 18px;
     margin-bottom: 15px;
 }
 
@@ -190,8 +191,9 @@ onMounted(() => getData());
     border: 1px solid #c0c0c0;
     outline: 0 !important;
     box-sizing: border-box;
-    padding: 12px 15px;
+    padding: 10px 15px;
     color: #747474;
+    margin-bottom: 12px;
 }
 
 .page-link {

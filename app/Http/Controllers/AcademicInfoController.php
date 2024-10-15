@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\academic_info;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class AcademicInfoController extends Controller
 {
@@ -32,7 +31,7 @@ class AcademicInfoController extends Controller
      */
     public function store(Request $request)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $academic = academic_info::create([
             'EID' => $request->input('eid'),
             'Level_of_Education_Id' => $request->input('degreeId'),
@@ -82,7 +81,7 @@ class AcademicInfoController extends Controller
      */
     public function update(Request $request, $id)
     {
-    $userId = Session::get('User_Id');
+    $userId = Auth::user()->EID;
         $academic = academic_info::findorfail($id);
         $academic->update([
             'Level_of_Education_Id' => $request->input('degreeId'),

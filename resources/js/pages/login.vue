@@ -7,7 +7,7 @@ import api from "@/api";
 const router = useRouter();
 const store = useStore();
 const form = reactive({
-    email: "",
+    username: "",
     password: "",
 });
 const err = ref("");
@@ -46,10 +46,10 @@ onMounted(() => {
             <form class="form" @submit.prevent="login">
                 <span class="text-danger">{{ err }}</span>
                 <input
-                    type="email"
+                    type="text"
                     class="input"
-                    placeholder="Email"
-                    v-model="form.email"
+                    placeholder="Username"
+                    v-model="form.username"
                 />
                 <input
                     type="password"

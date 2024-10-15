@@ -7,7 +7,7 @@ use App\Models\employee;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -75,7 +75,7 @@ class EmployeeController extends Controller
         $file_path = null;
 
         DB::beginTransaction();
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $employee = employee::create([
             'Company_Id' => $request->input('companyId'),
             'Employee_Id' => $request->input('employeeId'),
@@ -252,7 +252,7 @@ class EmployeeController extends Controller
 
     public function EmployeeExl()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
 
         $employee = employee::select(
             'employees.id',
@@ -304,7 +304,7 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         // try {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         DB::beginTransaction();
         $employee = employee::find($id);
         $employee->update([

@@ -11,25 +11,8 @@
             <i class="fas fa-bars"></i>
         </button>
         <!-- Navbar Search-->
-        <form
-            class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"
-        >
-            <!-- <div class="input-group">
-                <input
-                    class="form-control"
-                    type="text"
-                    placeholder="Search for..."
-                    aria-label="Search for..."
-                    aria-describedby="btnNavbarSearch"
-                />
-                <button
-                    class="btn btn-primary"
-                    id=""
-                    type="button"
-                >
-                    <i class="fas fa-search"></i>
-                </button>
-            </div> -->
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <!-- Search form here -->
         </form>
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
@@ -45,17 +28,16 @@
                     <i class="fa-solid fa-bell" style="font-size: large"></i>
                     <!-- Notification count badge -->
                     <span
-                        v-if="pendingCount > 0"
+                        v-if="totalNotifications > 0"
                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                     >
-                        {{ pendingCount }}
+                        {{ totalNotifications }}
                         <span class="visually-hidden">unread messages</span>
                     </span>
                 </a>
                 <ul
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown"
-                    v-if="notification.length > 0"
                     style="background-color: #c7d1cb;"
                 >
                     <div v-for="item in notification" :key="item.id">
@@ -66,12 +48,14 @@
                         >
                             {{ item.Full_Name }} Requested a Leave
                         </li>
+                    </div>
+                    <div v-for="leave in employeeLeave" :key="leave.id">
                         <li
                             class="dropdown-item"
-                            v-if="item.EID === user.id && item.Notification === '1'"
-                            @click="destroyNotification(user.id)"
+                            v-if="leave.Notification === 1"
+                            @click="destroyNotification(leave.id)"
                         >
-                            {{ item.Full_Name }} Your leave has been {{ item.Status }}.
+                            {{ leave.Full_Name }}, your {{ leave.leave_type }} Leave has been {{ leave.Status }}
                         </li>
                     </div>
                 </ul>
@@ -119,21 +103,25 @@ const router = useRouter();
 const error = ref("");
 const user = ref({});
 const notification = ref([]);
+const employeeLeave = ref([]);
 
-// Compute the number of pending notifications
-const pendingCount = computed(
-    () => notification.value.filter((item) => item.Status === "Pending").length
-);
+// Compute the total number of notifications from both existing notifications and employee leaves
+const totalNotifications = computed(() => {
+    const notificationCount = notification.value.filter(item => item.Status === "Pending").length; // Count of existing notifications
+    const leaveCount = employeeLeave.value.filter(leave => leave.Notification === 1).length; // Count from employeeLeave
+    return notificationCount + leaveCount; // Sum of both counts
+});
 
 const getData = async () => {
     try {
-        const [responseUser, responseNotification] = await axios.all([
+        const [responseUser, responseNotification, responseleave] = await axios.all([
             api.get("/current-user"),
             api.get("/all-leave"),
+            api.get("/employee-leave"),
         ]);
         user.value = responseUser.data;
         notification.value = responseNotification.data;
-        console.log(notification.value);
+        employeeLeave.value = responseleave.data;
     } catch (err) {
         error.value = err.message || "Error fetching data";
     }
@@ -144,12 +132,12 @@ const getData = async () => {
 
 const destroyNotification = async (id) => {
     try {
-        await api.get('/destroy-notification', id);
-        window.location.reload();
+        await api.get(`/destroy-notification/${id}`);
+        getData();
     } catch (error) {
+        // Handle error
     }
-}
-
+};
 
 const logout = async () => {
     store.dispatch("removeToken", 0);
@@ -161,7 +149,7 @@ const logout = async () => {
         console.error("Error logging out", error);
     }
     router.push({ name: "Login" });
-}
+};
 
 onMounted(() => getData());
 </script>

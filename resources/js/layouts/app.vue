@@ -14,8 +14,6 @@ const getData = async () => {
 };
 
 onMounted(() => getData());
-
-const loged = false;
 </script>
 
 <template>

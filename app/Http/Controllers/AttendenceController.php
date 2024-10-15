@@ -14,7 +14,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Session;
 
 class AttendenceController extends Controller
 {
@@ -63,7 +62,7 @@ class AttendenceController extends Controller
 
     public function store(Request $request)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $attendanceData = $request->input('attendanceData');
         $year = now()->year;
         $month = $request->input('month');

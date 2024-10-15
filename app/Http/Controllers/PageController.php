@@ -6,13 +6,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\user_has_page;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
     public function index()
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         $permissions = user_has_page::select('Page_Id')->where('User_Id', $userId)->get();
         return response()->json($permissions);
     }
@@ -34,7 +34,7 @@ class PageController extends Controller
 
     public function store(Request $request)
     {
-        $userId = Session::get('User_Id');
+        $userId = Auth::user()->EID;
         DB::beginTransaction();
         $store = user_has_page::updateOrCreate(
             ['EID' => $request->input('employee_Id')],
