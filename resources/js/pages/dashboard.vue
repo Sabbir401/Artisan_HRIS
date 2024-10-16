@@ -85,11 +85,11 @@ const initializeChart = async () => {
     var myPieChart = new Chart(pie, {
         type: "pie",
         data: {
-            labels: department.value.map((dept) => dept.Name),
+            labels: ['Active', 'Inactive'],
             datasets: [
                 {
-                    data: department.value.map((dept) => dept.employee_count),
-                    backgroundColor: backgroundColors, // Use random colors
+                    data: [dashCount.value.employee_act, dashCount.value.employee_inact,],
+                    backgroundColor: backgroundColors, 
                 },
             ],
         },

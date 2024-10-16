@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\asset;
-use App\Models\employee;
 use Illuminate\Http\Request;
 use App\Models\employee_asset;
 use Illuminate\Support\Facades\Auth;

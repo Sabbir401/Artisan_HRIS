@@ -149,9 +149,6 @@ onMounted(() => getData());
                     placeholder="Password"
                     v-model="form.c_password"
                 />
-                <p class="page-link">
-                    <span class="page-link-label">Forgot Password?</span>
-                </p>
                 <button class="form-btn">Register</button>
             </form>
         </div>
