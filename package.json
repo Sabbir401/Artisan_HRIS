@@ -8,7 +8,7 @@
     "devDependencies": {
         "axios": "^1.6.0",
         "laravel-vite-plugin": "^0.8.0",
-        "vite": "^5.0.12"
+        "vite": "^4.5.5"
     },
     "dependencies": {
         "@handsontable/vue3": "^14.4.0",
