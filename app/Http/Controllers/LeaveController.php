@@ -21,8 +21,27 @@ class LeaveController extends Controller
 
     public function index()
     {
-        $leave = leave::get();
-        return response()->json($leave);
+        $userId = Auth::user()->EID;
+
+        if ($userId) {
+            if ($userId === 13 || $userId === 1) {
+                $leaves = $this->getAllLeave();
+            } else {
+                $leaves = $this->getSubordinates($userId);
+            }
+
+            foreach ($leaves as $leave) {
+                $startDate = new \DateTime($leave->From_Date);
+                $endDate = new \DateTime($leave->To_Date);
+
+                $interval = $startDate->diff($endDate);
+                $leave->daysBetween = $interval->days + 1;
+            }
+
+            return response()->json($leaves);
+        } else {
+            return response()->json('User not found');
+        }
     }
 
 
@@ -36,7 +55,7 @@ class LeaveController extends Controller
             ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
             ->where('officials.Status', '=', 'N')
             ->orderby('leaves.id', 'desc')
-            ->get();
+            ->paginate(5);
 
         return $subordinates;
     }
@@ -242,6 +261,21 @@ class LeaveController extends Controller
     }
 
 
+    public function softDeleteLeave($id)
+    {
+        $leave = leave::find($id);
+
+        if ($leave) {
+            $leave->delete();
+            $response = [
+                'success'   =>  true,
+                'message'   =>  'Holiday deleted successfully',
+            ];
+            return response()->json($response);
+        }
+    }
+
+
     public function destroyNotification($id)
     {
         $leave = leave::findorfail($id);
@@ -256,7 +290,7 @@ class LeaveController extends Controller
 
     public function fetchHoliday()
     {
-        $holidays = holiday::all();
+        $holidays = holiday::paginate(10);
         return response()->json($holidays);
     }
 

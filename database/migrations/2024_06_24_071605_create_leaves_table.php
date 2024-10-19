@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('Attachment_Url',255)->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('EID')->references('id')->on('employees')->onDelete('cascade');
             $table->foreign('Leave_Type_Id')->references('id')->on('leave_types')->onDelete('cascade');
@@ -34,5 +35,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('leaves');
+        
     }
 };

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, defineAsyncComponent } from "vue";
+import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import Swal from "sweetalert2";
 import api from "../../api";
 
@@ -13,6 +14,13 @@ const selectedStatus = ref("");
 const selectedDept = ref("");
 const allLeave = ref([]);
 const selectedStore = ref(null);
+
+const pagination = ref({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+});
 
 const stausComponent = defineAsyncComponent(() =>
     import("../leave/component/statusUpdateForm.vue")
@@ -44,16 +52,22 @@ const editLeaveStatus = async (id) => {
     }
 };
 
-const getData = async () => {
+const getData = async (page = 1) => {
     try {
         const [responsedept, responsetype, response] = await axios.all([
             api.get("/department"),
             api.get("/leave-type"),
-            api.get("/all-leave"),
+            api.get(`/all-leave?page=${page}`),
         ]);
         department.value = responsedept.data;
         leaveType.value = responsetype.data;
-        allLeave.value = response.data;
+        
+        
+        allLeave.value = response.data.data;
+        pagination.value.current_page = response.data.current_page;
+        pagination.value.last_page = response.data.last_page;
+        pagination.value.per_page = response.data.per_page;
+        pagination.value.total = response.data.total;
     } catch (err) {
         error.value = err.message || "Error fetching data";
     } finally {
@@ -114,6 +128,24 @@ const totalLeaveDays = computed(() => {
     return totals;
 });
 
+const deleteLeave = async (id) => {
+    try {
+        const response = await api.delete(`/soft-delete-leave/${id}`);
+        if (response.data.success) {
+            Swal.fire({
+                position: "middle",
+                icon: "success",
+                title: "Information has been Deleted",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            await getData();
+        }
+    } catch (err) {
+        console.error("Error fetching store data for editing:", err);
+    }
+};
+
 const openAttachment = (url) => {
     window.open(url, "_blank");
 };
@@ -122,16 +154,8 @@ onMounted(() => getData());
 </script>
 
 <template>
-    <component
-        v-if="statusModel"
-        :is="stausComponent"
-        :isOpen="statusModel"
-        :editStore="selectedStore"
-        :leave_type="leaveType"
-        :stId="statusId"
-        @modal-close="statusClose"
-        name="first-modal"
-    />
+    <component v-if="statusModel" :is="stausComponent" :isOpen="statusModel" :editStore="selectedStore"
+        :leave_type="leaveType" :stId="statusId" @modal-close="statusClose" name="first-modal" />
     <div class="container-fluid px-3">
         <div class="col-lg-12 grid-margin stretch-card">
             <div class="container">
@@ -146,15 +170,21 @@ onMounted(() => getData());
                                     <div class="container">
                                         <div class="row align-items-center flex-row-reverse">
                                             <div class="col-lg-7 col-md-6 mb-4 mb-md-0">
-                                                <div class="about-text go-to" v-for="(item, index) in employee" :key="item.id">
-                                                    <h3 class="dark-color" v-if="index === 0">{{ item.Full_Name || "" }}</h3>
-                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.designation || "" }}</h6>
-                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.department || "" }}</h6>
+                                                <div class="about-text go-to" v-for="(item, index) in employee"
+                                                    :key="item.id">
+                                                    <h3 class="dark-color" v-if="index === 0">{{ item.Full_Name || "" }}
+                                                    </h3>
+                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.designation
+                                                        || "" }}</h6>
+                                                    <h6 class="theme-color lead" v-if="index === 0">{{ item.department
+                                                        || "" }}</h6>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-5 col-md-6" v-for="(item, index) in employee" :key="item.id">
+                                            <div class="col-lg-5 col-md-6" v-for="(item, index) in employee"
+                                                :key="item.id">
                                                 <div class="about-avatar" v-if="index === 0">
-                                                    <img :src="item.img_url ? item.img_url : ''" class="img-fluid" style="max-height: 150px; max-width: 130px;" />
+                                                    <img :src="item.img_url ? item.img_url : ''" class="img-fluid"
+                                                        style="max-height: 150px; max-width: 130px;" />
                                                 </div>
                                             </div>
                                         </div>
@@ -197,14 +227,16 @@ onMounted(() => getData());
                                 <label>Department</label>
                                 <select v-model="selectedDept" class="form-control">
                                     <option value="">All Department</option>
-                                    <option v-for="item in department" :key="item.id" :value="item.Name">{{ item.Name }}</option>
+                                    <option v-for="item in department" :key="item.id" :value="item.Name">{{ item.Name }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                 <label>Leave Type</label>
                                 <select v-model="selectedType" class="form-control">
                                     <option value="">All Type</option>
-                                    <option v-for="item in leaveType" :key="item.id" :value="item.Name">{{ item.Name }}</option>
+                                    <option v-for="item in leaveType" :key="item.id" :value="item.Name">{{ item.Name }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
@@ -234,7 +266,8 @@ onMounted(() => getData());
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="ver-align" v-for="(l, index) in filteredData" :key="l.id" @click="getEmployee(l.EID)">
+                                    <tr class="ver-align" v-for="(l, index) in filteredData" :key="l.id"
+                                        @click="getEmployee(l.EID)">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ l.Full_Name }}</td>
                                         <td>{{ l.From_Date }}</td>
@@ -243,7 +276,8 @@ onMounted(() => getData());
                                         <td>{{ l.Leave_Type }}</td>
                                         <td>{{ l.Status }}</td>
                                         <td v-if="l.Attachment_Url">
-                                            <button @click="openAttachment(l.Attachment_Url)" class="btn btn-info btn-sm mx-1">
+                                            <button @click="openAttachment(l.Attachment_Url)"
+                                                class="btn btn-info btn-sm mx-1">
                                                 <i class="fa-solid fa-file-arrow-down"></i>
                                             </button>
                                         </td>
@@ -252,10 +286,17 @@ onMounted(() => getData());
                                             <button class="btn btn-warning btn-sm mx-1" @click="editLeaveStatus(l.id)">
                                                 <i class="fa-regular fa-pen-to-square"></i>
                                             </button>
+                                            <button class="btn btn-danger btn-sm mx-1" @click="deleteLeave(l.id)">
+                                                <i class="fa-regular fa-trash-can"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <bootstrap4-pagination :pagination="pagination" @pagination-change-page="getData"
+                                v-if="pagination.total > pagination.per_page"></bootstrap4-pagination>
                         </div>
                     </div>
                 </div>

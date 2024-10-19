@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, defineAsyncComponent } from "vue";
+import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import api from "../../api";
 import Swal from "sweetalert2";
 
@@ -26,9 +27,9 @@ const holidayClose = () => {
     holidayModel.value = false;
 };
 
-const getData = async () => {
+const getData = async (page = 1) => {
     try {
-        const response = await api.get("/holiday");
+        const response = await api.get(`/holiday?page=${page}`);
         holidays.value = response.data;
     } catch (err) {
         error.value = err.message || "Error fetching data";
@@ -120,7 +121,7 @@ onMounted(() => getData());
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(holiday, index) in holidays"
+                                    v-for="(holiday, index) in holidays.data"
                                     :key="holiday.id"
                                 >
                                     <td>{{ index + 1 }}</td>
@@ -147,6 +148,13 @@ onMounted(() => getData());
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <Bootstrap4Pagination
+                            :data="holidays"
+                            :limit="2"
+                            @pagination-change-page="getData"
+                        />
                     </div>
                 </div>
             </div>

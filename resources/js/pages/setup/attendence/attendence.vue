@@ -179,7 +179,7 @@ const getData = async () => {
                     return isMatching;
                 });
                 attendance[day] = attendanceRecord
-                    ? attendanceRecord.Status
+                    ? attendanceRecord.Time_In
                     : "";
             });
 

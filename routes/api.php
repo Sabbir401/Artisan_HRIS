@@ -96,11 +96,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     //Leave controller
+    Route::get('/leave-type', [LeaveTypeController::class, 'index']);
     Route::get('/leave', [LeaveController::class, 'index']);
     Route::post('/leave', [LeaveController::class, 'store']);
     Route::get('/leave/{id}', [LeaveController::class, 'show']);
     Route::put('/leave/{id}', [LeaveController::class, 'update']);
-    Route::get('/leave-type', [LeaveTypeController::class, 'index']);
+    Route::delete('/soft-delete-leave/{id}', [LeaveController::class, 'softDeleteLeave']);
     Route::get('/leave-summery/{id}', [LeaveController::class, 'leaveSummery']);
     Route::get('/all-leave', [LeaveController::class, 'allLeave']);
     Route::get('/destroy-notification/{id}', [LeaveController::class, 'destroyNotification']);

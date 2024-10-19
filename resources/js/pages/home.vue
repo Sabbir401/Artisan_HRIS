@@ -22,11 +22,7 @@
         </div>
         <!-- GIF Container -->
         <div class="gif-container">
-          <img
-            src="/public/storage/uploads/home_design.png"
-            alt="HRM Animation"
-            class="gif"
-          />
+
         </div>
       </main>
 

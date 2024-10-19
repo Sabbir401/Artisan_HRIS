@@ -108,7 +108,7 @@ onMounted(() => initializeChart());
             </ol>
             <div class="row">
                 <div class="col-xl-3 col-md-6">
-                    <div class="card bg-dark text-white mb-4">
+                    <div class="card bg-dark bg-gradient text-white mb-4">
                         <div class="card-body d-flex justify-content-between">
                             <div>Total Active Employee</div>
                             <div>{{ dashCount.employee_act }}</div>
