@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('Spouse_Name', 100)->nullable();
             $table->string('Marital_Status', 20)->nullable();
             $table->date('DOB', 20);
-            $table->date('Birth_Date', 20);
             $table->string('Place_of_Birth', 100)->nullable();
             $table->text('Present_Address')->nullable();
             $table->text('Permanent_Address')->nullable();
