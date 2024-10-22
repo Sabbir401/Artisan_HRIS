@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\child;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChildController extends Controller
 {
@@ -15,7 +16,11 @@ class ChildController extends Controller
 
     public function edit($id)
     {
-        $child = child::find($id);
+        $child = child::where('EID', $id)->get();
+
+        if (!$child) {
+            return response()->json(['message' => 'Child not found'], 404);
+        }
         return response()->json($child);
     }
 

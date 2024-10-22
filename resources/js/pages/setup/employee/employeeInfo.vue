@@ -84,14 +84,14 @@ watch(
                 : (employee.value.presentAddress = "");
             newEmpData.Permanent_Address
                 ? (employee.value.permanentAddress =
-                      newEmpData.Permanent_Address)
+                    newEmpData.Permanent_Address)
                 : (employee.value.permanentAddress = "");
             newEmpData.Contact_No
                 ? (employee.value.officialContact = newEmpData.Contact_No)
                 : (employee.value.officialContact = "");
             newEmpData.Emergency_Contact
                 ? (employee.value.emergencyContact =
-                      newEmpData.Emergency_Contact)
+                    newEmpData.Emergency_Contact)
                 : (employee.value.emergencyContact = "");
             newEmpData.Gender
                 ? (employee.value.gender = newEmpData.Gender)
@@ -297,103 +297,61 @@ onMounted(() => getData());
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="" class=""
-                                        >Company Name*
+                                    <label for="" class="">Company Name*
                                         <span class="text-danger">{{
                                             error.companyId
                                                 ? error.companyId[0]
                                                 : ""
-                                        }}</span></label
-                                    >
-                                    <select
-                                        v-model="employee.companyId"
-                                        name=""
-                                        id=""
-                                        class="form-control"
-                                    >
+                                        }}</span></label>
+                                    <select v-model="employee.companyId" name="" id="" class="form-control">
                                         <option selected disabled>
                                             select
                                         </option>
-                                        <option
-                                            v-for="company in companies"
-                                            :key="company.id"
-                                            :value="company.id"
-                                        >
+                                        <option v-for="company in companies" :key="company.id" :value="company.id">
                                             {{ company.Name }}
                                         </option>
                                     </select>
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Employee ID*
+                                    <label for="exampleInputEmail1" class="">Employee ID*
                                         <span class="text-danger">{{
                                             error.employeeId
                                                 ? error.employeeId[0]
                                                 : ""
-                                        }}</span></label
-                                    >
+                                        }}</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"
-                                                >ABNB</span
-                                            >
+                                            <span class="input-group-text">ABNB</span>
                                         </div>
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="disabledTextInput"
-                                            aria-describedby="emailHelp"
-                                            v-model="employee.employeeId"
-                                            readonly
-                                        />
+                                        <input type="text" class="form-control" id="disabledTextInput"
+                                            aria-describedby="emailHelp" v-model="employee.employeeId" readonly />
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class="z"
-                                        >Card No</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.cardNo"
-                                    />
+                                    <label for="exampleInputEmail1" class="z">Card No</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.cardNo" />
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Full Name*
+                                    <label for="exampleInputEmail1" class="">Full Name*
                                         <span class="text-danger">{{
                                             error.fullName
                                                 ? error.fullName[0]
                                                 : ""
-                                        }}</span></label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.fullName"
-                                    />
+                                        }}</span></label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.fullName" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Date of Birth*
+                                    <label for="exampleInputEmail1" class="">Date of Birth*
                                         <span class="text-danger">{{
                                             error.dob ? error.dob[0] : ""
-                                        }}</span></label
-                                    >
-                                    <input
-                                        type="date"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.dob"
-                                    />
+                                            }}</span></label>
+                                    <input type="date" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.dob" />
                                 </div>
                             </div>
                         </div>
@@ -403,80 +361,40 @@ onMounted(() => getData());
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Father's Name</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.fatherName"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Father's Name</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.fatherName" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Mother's Name</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.motherName"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Mother's Name</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.motherName" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Place of Birth</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.pob"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Place of Birth</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.pob" />
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-lg-6 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Present Address</label
-                                    >
-                                    <textarea
-                                        class="form-control"
-                                        id="exampleFormControlTextarea1"
-                                        rows="2"
-                                        v-model="employee.presentAddress"
-                                    ></textarea>
+                                    <label for="exampleInputEmail1" class="">Present Address</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"
+                                        v-model="employee.presentAddress"></textarea>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Permanent Address</label
-                                    >
-                                    <textarea
-                                        class="form-control"
-                                        id="exampleFormControlTextarea1"
-                                        rows="2"
-                                        v-model="employee.permanentAddress"
-                                    ></textarea>
+                                    <label for="exampleInputEmail1" class="">Permanent Address</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"
+                                        v-model="employee.permanentAddress"></textarea>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Marital Status</label
-                                    >
-                                    <select
-                                        v-model="employee.maritalStatus"
-                                        name=""
-                                        id=""
-                                        class="form-control"
-                                    >
+                                    <label for="exampleInputEmail1" class="">Marital Status</label>
+                                    <select v-model="employee.maritalStatus" name="" id="" class="form-control">
                                         <option selected disabled>
                                             -select-
                                         </option>
@@ -485,34 +403,18 @@ onMounted(() => getData());
                                     </select>
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Spouse Name</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.spouseName"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Spouse Name</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.spouseName" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-6 col-sm-12">
                                     <label for="" class="">Religion</label>
-                                    <select
-                                        v-model="employee.religion"
-                                        name=""
-                                        id=""
-                                        class="form-control"
-                                    >
+                                    <select v-model="employee.religion" name="" id="" class="form-control">
                                         <option selected disabled>
                                             select
                                         </option>
-                                        <option
-                                            v-for="religion in religions"
-                                            :key="religion.id"
-                                            :value="religion.id"
-                                        >
+                                        <option v-for="religion in religions" :key="religion.id" :value="religion.id">
                                             {{ religion.Name }}
                                         </option>
                                     </select>
@@ -520,38 +422,19 @@ onMounted(() => getData());
                             </div>
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Official Contact</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.officialContact"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Official Contact</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.officialContact" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Emergency Contact</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.emergencyContact"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Emergency Contact</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.emergencyContact" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-6 col-sm-12">
                                     <label for="" class="">Gender</label>
-                                    <select
-                                        v-model="employee.gender"
-                                        name=""
-                                        id=""
-                                        class="form-control"
-                                    >
+                                    <select v-model="employee.gender" name="" id="" class="form-control">
                                         <option selected disabled>
                                             -select-
                                         </option>
@@ -564,45 +447,22 @@ onMounted(() => getData());
 
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Personal Email</label
-                                    >
-                                    <input
-                                        type="email"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.personalEmail"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Personal Email</label>
+                                    <input type="email" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.personalEmail" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Official Email</label
-                                    >
-                                    <input
-                                        type="email"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.officialEmail"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Official Email</label>
+                                    <input type="email" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.officialEmail" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
                                     <label for="" class="">Blood Group</label>
-                                    <select
-                                        v-model="employee.bloodGroup"
-                                        name=""
-                                        id=""
-                                        class="form-control"
-                                    >
+                                    <select v-model="employee.bloodGroup" name="" id="" class="form-control">
                                         <option selected disabled>
                                             select
                                         </option>
-                                        <option
-                                            v-for="blood in bloods"
-                                            :key="blood.id"
-                                            :value="blood.id"
-                                        >
+                                        <option v-for="blood in bloods" :key="blood.id" :value="blood.id">
                                             {{ blood.Name }}
                                         </option>
                                     </select>
@@ -611,28 +471,14 @@ onMounted(() => getData());
 
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >Nationality</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.nationality"
-                                    />
+                                    <label for="exampleInputEmail1" class="">Nationality</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.nationality" />
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <label for="exampleInputEmail1" class=""
-                                        >NID</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="disabledTextInput"
-                                        aria-describedby="emailHelp"
-                                        v-model="employee.nid"
-                                    />
+                                    <label for="exampleInputEmail1" class="">NID</label>
+                                    <input type="text" class="form-control" id="disabledTextInput"
+                                        aria-describedby="emailHelp" v-model="employee.nid" />
                                 </div>
                             </div>
                         </div>
@@ -643,41 +489,22 @@ onMounted(() => getData());
                     <div class="card mb-3 img-card">
                         <div class="card-body img-card-body">
                             <div class="col-lg-12 col-md-12 col-sm-12 mb-2">
-                                <label for="exampleInputEmail1" class=""
-                                    >Upload Photo
-                                    <span
-                                        v-if="fileSizeWarning"
-                                        class="text-danger"
-                                    >
+                                <label for="exampleInputEmail1" class="">Upload Photo
+                                    <span v-if="fileSizeWarning" class="text-danger">
                                         File size exceeds 500 KB. Please choose
                                         a smaller file.
-                                    </span></label
-                                >
-                                <input
-                                    type="file"
-                                    class="form-control"
-                                    id="disabledTextInput"
-                                    @change="getImage"
-                                />
+                                    </span></label>
+                                <input type="file" class="form-control" id="disabledTextInput" @change="getImage" />
                             </div>
                             <div v-if="selectedImage" class="row mb-3">
                                 <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <img
-                                        :src="
-                                            selectedImage ? selectedImage : ''
-                                        "
-                                        alt="Image Preview"
-                                        class="card-img"
-                                    />
+                                    <img :src="selectedImage ? selectedImage : ''
+                                        " alt="Image Preview" class="card-img" />
                                 </div>
                             </div>
                             <div v-else>
                                 <div v-if="empId">
-                                    <img
-                                        :src="emp_img ? emp_img.img_url : ''"
-                                        alt="Image Preview"
-                                        class="card-img"
-                                    />
+                                    <img :src="emp_img ? emp_img.img_url : ''" alt="Image Preview" class="card-img" />
                                 </div>
                             </div>
                         </div>
@@ -702,8 +529,8 @@ onMounted(() => getData());
     max-height: 563px;
 }
 
-.img-card-body{
-object-fit: contain;
+.img-card-body {
+    object-fit: contain;
 }
 
 img {
@@ -727,7 +554,8 @@ img {
 
 /* Select fields */
 .form-control {
-    padding-right: 2.5rem; /* Extra space for the dropdown arrow */
+    padding-right: 2.5rem;
+    /* Extra space for the dropdown arrow */
 }
 
 /* Dropdown arrow disable */

@@ -78,9 +78,8 @@ class NomineeController extends Controller
     public function edit($id)
     {
         $nominee = nominee::where('EID', $id)->first();
-
         if (!$nominee) {
-            return response()->json(['message' => 'Nominee not found']);
+            return response()->json(['message' => 'Empty']);
         }
         return response()->json($nominee);
     }

@@ -73,6 +73,7 @@ const register = async () => {
                 showConfirmButton: false,
                 timer: 1500,
             });
+            const responseEmail = await api.post("/user-mail/", form.value);
             resetForm();
         }
     } catch (e) {

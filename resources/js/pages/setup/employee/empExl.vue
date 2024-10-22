@@ -17,7 +17,6 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
 import { HotTable } from "@handsontable/vue3";
 import { registerAllModules } from "handsontable/registry";
 import "handsontable/dist/handsontable.full.css";

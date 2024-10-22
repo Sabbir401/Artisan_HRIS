@@ -55,7 +55,7 @@ class LeaveController extends Controller
             ->join('designations', 'officials.Designation_Id', '=', 'designations.id')
             ->where('officials.Status', '=', 'N')
             ->orderby('leaves.id', 'desc')
-            ->paginate(5);
+            ->get();
 
         return $subordinates;
     }

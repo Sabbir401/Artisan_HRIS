@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\attendence;
-use App\Models\navigation;
+use App\Http\Controllers\EmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/link-storage', function () {
@@ -17,6 +16,7 @@ Route::get('/link-storage', function () {
         }
     }
 });
+
 
 Route::get('/{any}', function () {
     return view('welcome');

@@ -15,13 +15,6 @@ const selectedDept = ref("");
 const allLeave = ref([]);
 const selectedStore = ref(null);
 
-const pagination = ref({
-    current_page: 1,
-    last_page: 1,
-    per_page: 10,
-    total: 0,
-});
-
 const stausComponent = defineAsyncComponent(() =>
     import("../leave/component/statusUpdateForm.vue")
 );
@@ -40,7 +33,7 @@ const statusClose = () => {
 const editLeaveStatus = async (id) => {
     const leaveData = allLeave.value.find((leave) => leave.id === id);
     if (leaveData) {
-        selectedStore.value = leaveData; // Set the leave data for editing
+        selectedStore.value = leaveData; 
         statusId.value = id;
         statusOpen();
     } else {
@@ -61,13 +54,8 @@ const getData = async (page = 1) => {
         ]);
         department.value = responsedept.data;
         leaveType.value = responsetype.data;
-        
-        
-        allLeave.value = response.data.data;
-        pagination.value.current_page = response.data.current_page;
-        pagination.value.last_page = response.data.last_page;
-        pagination.value.per_page = response.data.per_page;
-        pagination.value.total = response.data.total;
+        allLeave.value = response.data;
+
     } catch (err) {
         error.value = err.message || "Error fetching data";
     } finally {
@@ -250,7 +238,7 @@ onMounted(() => getData());
                             </div>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive leave-table">
                             <table class="table table-bordered text-center">
                                 <thead>
                                     <tr>
@@ -294,10 +282,6 @@ onMounted(() => getData());
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-center">
-                            <bootstrap4-pagination :pagination="pagination" @pagination-change-page="getData"
-                                v-if="pagination.total > pagination.per_page"></bootstrap4-pagination>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -307,6 +291,10 @@ onMounted(() => getData());
 
 
 <style>
+.leave-table {
+    max-height: 200px;
+}
+
 .leave-status th,
 .leave-status td {
     padding: 10px 3px;

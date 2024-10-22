@@ -9,21 +9,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class UserCreated extends Mailable
+class LeaveEmail extends Mailable
 {
     use Queueable, SerializesModels;
-    public $name;
-    public $username;
-    public $password;
+
+    public $mailMessage;
+    public $subject;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $username,  $password)
+    public function __construct($message, $subject)
     {
-        $this->name = $name;
-        $this->username = $username;
-        $this->password = $password;
+        $this->mailMessage = $message;
+        $this->subject = $subject;
     }
 
     /**
@@ -32,14 +31,18 @@ class UserCreated extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New User Created',
+            subject: $this->subject,
         );
     }
 
-
-    public function build()
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
     {
-        return $this->view('emails.user_created');
+        return new Content(
+            view: 'emails.leave_email',
+        );
     }
 
     /**

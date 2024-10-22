@@ -17,6 +17,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\AcademicInfoController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\ChildController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\EmployeeAssetController;
 use App\Http\Controllers\EmployeeInformationController;
 use App\Http\Controllers\TrainingInfoController;
@@ -194,7 +195,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/editEmpAsset/{id}', [EmployeeAssetController::class, "editEmpAsset"]);
     Route::put('/empAsset/{id}', [EmployeeAssetController::class, "update"]);
 
-
-
     Route::get('/supervisor', [EmployeeInformationController::class, "supervisorTree"]);
+
+
+    Route::get('/leave-mail', [EmailController::class, "sendLeaveEmail"]);
+    Route::post('/user-mail', [EmailController::class, "sendUserEmail"]);
+
 });

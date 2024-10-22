@@ -30,13 +30,11 @@ const childComponent = defineAsyncComponent(() =>
 );
 
 const editChild = async (id) => {
-    try {
-        const response = await api.get(`/child/${id}/edit`);
-        childData.value = response.data;
+    const Data = children.value.find((child) => child.id === id);
+    if (Data) {
+        childData.value = Data; 
         childId.value = id;
         childOpened("Update");
-    } catch (err) {
-        console.error("Error fetching store data for editing:", err);
     }
 };
 
@@ -53,10 +51,16 @@ const nominee = ref({
 
 const getData = async () => {
     try {
-        const response = await api.get(`/nominee/${empId}/edit`);
-        const child = await api.get(`/child/${eid}`);
-        empEdit.value = response.data;
-        children.value = child.data;
+
+        const [
+            responseChild,
+            responseNominee,
+        ] = await axios.all([
+            api.get(`/child/${empId}/edit`),
+            api.get(`/nominee/${empId}/edit`),
+        ]);
+        empEdit.value = responseNominee.data;
+        children.value = responseChild.data;
     } catch (err) {
         console.error("Error fetching store data for editing:", err);
     }
@@ -131,7 +135,6 @@ const submitForm = async () => {
 };
 
 const update = async () => {
-    console.log("up");
     try {
         const result = await Swal.fire({
             title: "Are you sure?",
@@ -161,7 +164,7 @@ const update = async () => {
 };
 
 const submit = () => {
-    if (empEdit.value == "") {
+    if (empEdit.value.message == "Empty") {
         submitForm();
     } else if (empId) {
         update();
@@ -178,18 +181,8 @@ onMounted(() => getData());
 </script>
 
 <template>
-    <component
-        v-if="childModel"
-        :is="childComponent"
-        :isOpen="childModel"
-        :editStore="childData"
-        :updateinfo="heading"
-        :EID="eid"
-        :Id="childId"
-        @modal-close="childClose"
-        @submit="submitHandler"
-        name="first-modal"
-    />
+    <component v-if="childModel" :is="childComponent" :isOpen="childModel" :editStore="childData" :updateinfo="heading"
+        :EID="eid" :Id="childId" @modal-close="childClose" @submit="submitHandler" name="first-modal" />
 
     <div class="card mb-3">
         <div class="card-body">
@@ -198,108 +191,61 @@ onMounted(() => getData());
                 <form @submit.prevent="submit">
                     <div class="row mb-3">
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Nominee Name*
+                            <label for="exampleInputEmail1" class="">Nominee Name*
                                 <span class="text-danger">{{
                                     error["nominee.nomineeName"]
                                         ? error["nominee.nomineeName"][0]
                                         : ""
-                                }}</span></label
-                            >
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.nomineeName"
-                            />
+                                }}</span></label>
+                            <input type="text" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.nomineeName" />
                         </div>
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Date of Birth*
+                            <label for="exampleInputEmail1" class="">Date of Birth*
                                 <span class="text-danger">{{
                                     error["nominee.dob"]
                                         ? error["nominee.dob"][0]
                                         : ""
-                                }}</span></label
-                            >
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.dob"
-                            />
+                                }}</span></label>
+                            <input type="date" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.dob" />
                         </div>
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Contact No*
+                            <label for="exampleInputEmail1" class="">Contact No*
                                 <span class="text-danger">{{
                                     error["nominee.contactNo"]
                                         ? error["nominee.contactNo"][0]
                                         : ""
                                 }}</span>
                             </label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.contactNo"
-                            />
+                            <input type="text" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.contactNo" />
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Email Id</label
-                            >
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.email"
-                            />
+                            <label for="exampleInputEmail1" class="">Email Id</label>
+                            <input type="text" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.email" />
                         </div>
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >National Id</label
-                            >
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.nid"
-                            />
+                            <label for="exampleInputEmail1" class="">National Id</label>
+                            <input type="text" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.nid" />
                         </div>
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Share %</label
-                            >
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="disabledTextInput"
-                                aria-describedby="emailHelp"
-                                v-model="nominee.share"
-                            />
+                            <label for="exampleInputEmail1" class="">Share %</label>
+                            <input type="text" class="form-control" id="disabledTextInput" aria-describedby="emailHelp"
+                                v-model="nominee.share" />
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-lg-12 col-md-12 col-sm-12">
-                            <label for="exampleInputEmail1" class=""
-                                >Present Address</label
-                            >
-                            <textarea
-                                class="form-control"
-                                id="exampleFormControlTextarea1"
-                                rows="2"
-                                v-model="nominee.presentAddress"
-                            ></textarea>
+                            <label for="exampleInputEmail1" class="">Present Address</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"
+                                v-model="nominee.presentAddress"></textarea>
                         </div>
                     </div>
 
@@ -315,9 +261,9 @@ onMounted(() => getData());
             </div>
         </div>
     </div>
-    
+
     <hr class="border border-3 border border-dark" />
-    
+
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card mb-3">
             <div class="card-body">
@@ -326,11 +272,7 @@ onMounted(() => getData());
                         <h4 class="card-title m-2">Children Information</h4>
                     </div>
                     <div class="col-lg-1">
-                        <button
-                            @click="childOpened('Save')"
-                            type="button"
-                            class="btn-plus"
-                        >
+                        <button @click="childOpened('Save')" type="button" class="btn-plus">
                             <i class="fa-solid fa-plus"></i>
                         </button>
                     </div>
@@ -370,13 +312,8 @@ onMounted(() => getData());
                                     }}
                                 </td>
                                 <td>
-                                    <button
-                                        class="custom-btn btn-15"
-                                        @click="editChild(child.id)"
-                                    >
-                                        <i
-                                            class="fa-regular fa-pen-to-square"
-                                        ></i>
+                                    <button class="custom-btn btn-15" @click="editChild(child.id)">
+                                        <i class="fa-regular fa-pen-to-square"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -391,53 +328,54 @@ onMounted(() => getData());
 <style scoped>
 /* Input fields */
 .form-control {
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
 .form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
 }
 
 /* Select fields */
 .form-control {
-  padding-right: 2.5rem; /* Extra space for the dropdown arrow */
+    padding-right: 2.5rem;
+    /* Extra space for the dropdown arrow */
 }
 
 /* Dropdown arrow disable */
 .form-control::-ms-expand {
-  display: none;
+    display: none;
 }
 
 /* Custom select styles */
 .form-control {
-  background: #f9f9f9;
-  background-size: 1rem 1rem;
+    background: #f9f9f9;
+    background-size: 1rem 1rem;
 }
 
 /* File upload styling */
 .form-control[type="file"] {
-  border: 1px solid #ddd;
-  padding: 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f8f9fa;
 }
 
 /* File upload hover effect */
 .form-control[type="file"]:hover {
-  border-color: #007bff;
+    border-color: #007bff;
 }
 
 /* Textarea */
 textarea.form-control {
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  resize: vertical;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    resize: vertical;
 }
 </style>

@@ -36,7 +36,7 @@ const loading = ref(false);
 const fetchAttendence = async () => {
     loading.value = true;
     try {
-        const response = await api.get("/fetch-attendence");
+        const response = await api.get("/send-mail");
     } catch (error) {
         console.error("Error fetching data:", error);
     } finally {
