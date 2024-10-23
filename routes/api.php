@@ -198,7 +198,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/supervisor', [EmployeeInformationController::class, "supervisorTree"]);
 
 
-    Route::get('/leave-mail', [EmailController::class, "sendLeaveEmail"]);
+    Route::get('/leave-mail/{id}', [EmailController::class, "sendLeaveEmail"]);
     Route::post('/user-mail', [EmailController::class, "sendUserEmail"]);
 
 });

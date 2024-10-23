@@ -20,7 +20,7 @@
             </div>
         </div>
         <div>
-            <button class="custom-btn btn-15 mb-3" @click="saveData">
+            <button class="custom-btn btn-15 mb-3">
                 Save Data
             </button>
             <div v-if="loading" class="overlay-loading">
@@ -94,7 +94,7 @@ const generateDays = () => {
         { type: "text", data: "branch", readOnly: true },
         ...daysInMonth.value.map((day, index) => ({
             type: "dropdown",
-            source: ["", "P", "A", "L"],
+            // source: ["", "P", "A", "L"],
             data: `attendance.${day}`,
             editor: "dropdown",
         })),
@@ -153,6 +153,7 @@ const hotSettings = ref({
         "borders",
         "remove_row",
     ],
+    readOnly: true,
     afterChange(changes, source) {
         if (source !== "loadData") {
             hotTableComponent.value.hotInstance.render();

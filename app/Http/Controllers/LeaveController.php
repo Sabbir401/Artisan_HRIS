@@ -174,10 +174,11 @@ class LeaveController extends Controller
             ]);
         }
 
-
+        $lastId = leave::latest('id')->value('id');
         $response = [
             'success'   =>  true,
             'message'   =>  'Successfully inserted',
+            'id'        =>  $lastId,
         ];
 
         DB::commit();

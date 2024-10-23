@@ -22,7 +22,6 @@ const form = ref({
     Status: "",
     file: null,
 });
-
 const getData = async () => {
     try {
         const [responseemp, responsetype] = await axios.all([
@@ -141,6 +140,7 @@ const submit = async () => {
                 showConfirmButton: false,
                 timer: 1500,
             });
+            await api.get(`/leave-mail/${response.data.id}`);
             resetForm();
         }
     } catch (err) {

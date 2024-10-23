@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome to HR System</title>
+    <title>Welcome to ARTISAN HRIS</title>
 </head>
 <body>
     <h1>Hello, {{ $name }}!</h1>
