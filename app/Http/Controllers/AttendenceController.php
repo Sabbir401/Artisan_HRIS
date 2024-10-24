@@ -33,7 +33,8 @@ class AttendenceController extends Controller
     public function getAttendance(Request $request)
     {
         $month = $request->query('month');
-        $attendance = attendence::whereMonth('date', $month + 1)->get();
+        $year = $request->query('year');
+        $attendance = attendence::whereMonth('date', $month + 1)->whereYear('date', $year)->get();
         return response()->json($attendance);
     }
 
@@ -152,7 +153,15 @@ class AttendenceController extends Controller
     {
         $userId = Auth::user()->EID;
         if ($userId === 13 || $userId === 1) {
-            $userId = 208;
+            $employee = employee::select('employees.id', 'employees.Full_Name', 'employees.Employee_Id', 'designations.Name as designation', 'departments.Name as department', 'branches.Name as branch')
+                ->leftjoin('officials', 'officials.EID', '=', 'employees.id')
+                ->leftjoin('departments', 'officials.Department_Id', '=', 'departments.id')
+                ->leftjoin('designations', 'officials.Designation_Id', '=', 'designations.id')
+                ->leftjoin('branches', 'officials.Job_Location_Id', '=', 'branches.id')
+                ->where('officials.Status', '=', 'N')
+                ->orderby('departments.Name', 'asc')
+                ->get();
+            return response()->json($employee);
         }
 
         if ($userId) {
@@ -163,95 +172,6 @@ class AttendenceController extends Controller
 
         return response()->json(['message' => 'User not found'], 404);
     }
-
-    //The optimize code
-
-    // public function fetchAttendence()
-    // {
-    //     // Fetch all holidays
-    //     $holidays = holiday::all();
-
-    //     // Fetch all approved leaves with leave types
-    //     $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.Name')
-    //         ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
-    //         ->where('leaves.Status', '=', 'Approved')
-    //         ->get();
-
-    //     // Fetch all attendance records and group by User_id and date
-    //     $attendances = zkt_attendence::all()->groupBy(['User_id', 'date']);
-
-    //     // Determine the minimum and maximum dates from the attendance data
-    //     $minDate = zkt_attendence::min('date');
-    //     $maxDate = min(zkt_attendence::max('date'), date('Y-m-d')); // Stop at the current date
-
-    //     // Iterate through each user
-    //     foreach ($attendances as $userId => $userAttendances) {
-    //         // Loop through each date from minimum to maximum
-    //         $currentDate = $minDate;
-    //         while ($currentDate <= $maxDate) {
-    //             // Format the date to YYYY-MM-DD
-    //             $date = $currentDate;
-
-    //             // Check if there is any attendance record for the user on this date
-    //             if (isset($userAttendances[$date])) {
-    //                 $attendanceRecords = $userAttendances[$date];
-
-    //                 // Extract the first punch-in time and last punch-out time for each user each day
-    //                 $timeIn = $attendanceRecords->sortBy('time')->first()->time;
-    //                 $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
-
-    //                 // Determine status based on the first punch-in time
-    //                 $status = 'A'; // Default status is Absent
-    //                 if ($timeIn) {
-    //                     $status = ($timeIn > '11:00:00') ? 'L' : 'P';
-    //                 }
-    //             } else {
-    //                 // Check if the date falls within any leave period
-    //                 $isOnLeave = $leaves->first(function ($leave) use ($userId, $date) {
-    //                     return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
-    //                 });
-
-    //                 if ($isOnLeave) {
-    //                     $status = $isOnLeave->Name; // Set status to leave type
-    //                     $timeIn = $timeOut = null;
-    //                 } else {
-    //                     // Check if the date falls within any holiday period
-    //                     $isHoliday = $holidays->contains(function ($holiday) use ($date) {
-    //                         return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
-    //                     });
-
-    //                     if ($isHoliday) {
-    //                         $status = 'H';
-    //                         $timeIn = $timeOut = null;
-    //                     } else {
-    //                         $status = 'A';
-    //                         $timeIn = $timeOut = null;
-    //                     }
-    //                 }
-    //             }
-
-    //             // Update or create the attendance record in the attendence table
-    //             attendence::updateOrCreate(
-    //                 [
-    //                     'EID' => $userId,
-    //                     'Date' => $date,
-    //                 ],
-    //                 [
-    //                     'Time_In' => $timeIn,
-    //                     'Time_Out' => $timeOut,
-    //                     'Status' => $status,
-    //                 ]
-    //             );
-
-    //             // Move to the next day
-    //             $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-    //         }
-    //     }
-
-    //     return response()->json(['message' => 'Attendance records processed successfully']);
-    // }
-
-
 
 
     public function edit(Request $request)
@@ -270,6 +190,81 @@ class AttendenceController extends Controller
     }
 
 
+    // this is fast and accurate but donot take new records
+    // public function fetchAttendence()
+    // {
+    //     // Fetch all holidays, leaves, and attendance records as before
+    //     $holidays = holiday::all();
+    //     $leaves = leave::select('leaves.EID', 'leaves.From_Date', 'leaves.To_Date', 'leave_types.short_name')
+    //         ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
+    //         ->where('leaves.Status', '=', 'Approved')
+    //         ->get();
+
+    //     $attendances = zkt_attendence::all()->groupBy(['User_id', 'date']);
+
+    //     // Get the last processed date from the attendences table
+    //     $lastProcessedDate = attendence::max('Date');
+
+    //     // Set the start date to the last processed date or a default date
+    //     $startDate = $lastProcessedDate 
+    //         ? Carbon::parse($lastProcessedDate)->startOfMonth()->addMonth()->format('Y-m-d') 
+    //         : '2023-11-01';  // Default start date if no previous record exists
+
+    //     // Set the end date as the current date
+    //     // $endDate = Carbon::now()->format('Y-m-d');
+    //     $endDate = zkt_attendence::max('Date');
+
+    //     // Initialize the data array
+    //     $insertData = [];
+
+    //     foreach ($attendances as $userId => $userAttendances) {
+    //         $currentDate = $startDate;
+
+    //         // Iterate through each date from start to end date
+    //         while ($currentDate <= $endDate) {
+    //             // Check for attendance on the current date
+    //             if (isset($userAttendances[$currentDate])) {
+    //                 $attendanceRecords = $userAttendances[$currentDate];
+
+    //                 $timeIn = $attendanceRecords->sortBy('time')->first()->time;
+    //                 $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
+    //                 $status = ($timeIn > '11:00:00') ? 'L' : 'P'; // Determine status (Late or Present)
+
+    //             } else {
+    //                 $status = $this->determineStatus($userId, $currentDate, $holidays, $leaves);
+    //                 $timeIn = $timeOut = null;
+    //             }
+
+    //             // Add record to the insert array
+    //             $insertData[] = [
+    //                 'EID' => $userId,
+    //                 'Date' => $currentDate,
+    //                 'Time_In' => $timeIn,
+    //                 'Time_Out' => $timeOut,
+    //                 'Status' => $status,
+    //                 'created_at' => Carbon::now(),
+    //                 'updated_at' => Carbon::now(),
+    //             ];
+
+    //             // If the batch size exceeds 1000, insert the data and reset the array
+    //             if (count($insertData) >= 1000) {
+    //                 DB::table('attendences')->insert($insertData);
+    //                 $insertData = []; // Reset insertData array after each batch insert
+    //             }
+
+    //             $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+    //         }
+    //     }
+
+    //     // Insert any remaining data after loop
+    //     if (!empty($insertData)) {
+    //         DB::table('attendences')->insert($insertData);
+    //     }
+
+    //     return response()->json(['message' => 'Attendance records processed successfully']);
+    // }
+
+
     public function fetchAttendence()
     {
         // Fetch all holidays, leaves, and attendance records as before
@@ -278,41 +273,44 @@ class AttendenceController extends Controller
             ->join('leave_types', 'leaves.Leave_Type_Id', '=', 'leave_types.id')
             ->where('leaves.Status', '=', 'Approved')
             ->get();
-    
-        $attendances = zkt_attendence::all()->groupBy(['User_id', 'date']);
-    
-        // Get the last processed date from the attendences table
+
+        // Get the last processed date from the attendances table
         $lastProcessedDate = attendence::max('Date');
-    
+
         // Set the start date to the last processed date or a default date
-        $startDate = $lastProcessedDate 
-            ? Carbon::parse($lastProcessedDate)->startOfMonth()->addMonth()->format('Y-m-d') 
+        $startDate = $lastProcessedDate
+            ? Carbon::parse($lastProcessedDate)->format('Y-m-d')
             : '2023-10-30';  // Default start date if no previous record exists
-    
+
         // Set the end date as the current date
-        $endDate = Carbon::now()->format('Y-m-d');
-    
+        $endDate = zkt_attendence::max('Date');
+
+        // Fetch only new attendance records from the zkt_attendence table
+        $attendances = zkt_attendence::where('date', '>=', $startDate)
+            ->get()
+            ->groupBy(['User_id', 'date']);
+
         // Initialize the data array
         $insertData = [];
-    
+
         foreach ($attendances as $userId => $userAttendances) {
             $currentDate = $startDate;
-    
+
             // Iterate through each date from start to end date
             while ($currentDate <= $endDate) {
                 // Check for attendance on the current date
                 if (isset($userAttendances[$currentDate])) {
                     $attendanceRecords = $userAttendances[$currentDate];
-    
+
                     $timeIn = $attendanceRecords->sortBy('time')->first()->time;
                     $timeOut = $attendanceRecords->sortByDesc('time')->first()->time;
                     $status = ($timeIn > '11:00:00') ? 'L' : 'P'; // Determine status (Late or Present)
-    
+
                 } else {
                     $status = $this->determineStatus($userId, $currentDate, $holidays, $leaves);
                     $timeIn = $timeOut = null;
                 }
-    
+
                 // Add record to the insert array
                 $insertData[] = [
                     'EID' => $userId,
@@ -323,25 +321,27 @@ class AttendenceController extends Controller
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ];
-    
+
                 // If the batch size exceeds 1000, insert the data and reset the array
                 if (count($insertData) >= 1000) {
                     DB::table('attendences')->insert($insertData);
                     $insertData = []; // Reset insertData array after each batch insert
                 }
-    
+
                 $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
             }
         }
-    
+
         // Insert any remaining data after loop
         if (!empty($insertData)) {
             DB::table('attendences')->insert($insertData);
         }
-    
+
         return response()->json(['message' => 'Attendance records processed successfully']);
     }
-    
+
+
+
     /**
      * Determine the status of an employee based on leave, holiday, and weekends.
      */
@@ -351,29 +351,24 @@ class AttendenceController extends Controller
         $isOnLeave = $leaves->first(function ($leave) use ($userId, $date) {
             return $leave->EID == $userId && $date >= $leave->From_Date && $date <= $leave->To_Date;
         });
-        
+
         if ($isOnLeave) {
             return $isOnLeave->short_name; // Set status to leave type short name
         }
-    
+
         // Check if the date falls within any holiday period
         $isHoliday = $holidays->contains(function ($holiday) use ($date) {
             return $date >= $holiday->From_Date && $date <= $holiday->To_Date;
         });
-    
+
         if ($isHoliday) {
             return 'H'; // Holiday
         }
-    
+
         // Check if the date is a Friday (adjust according to your weekend setting)
         if (Carbon::parse($date)->isFriday()) {
             return 'F'; // Friday/Weekend
         }
         return 'A';
-    
     }
-
-
-
-
 }

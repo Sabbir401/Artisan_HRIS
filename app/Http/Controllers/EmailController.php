@@ -22,8 +22,8 @@ class EmailController extends Controller
         ->first();
 
         $supervisor = employee::where('id', $leave->Supervisor_Id)->first();
-        // $toEmail = 'sabbir@artisanbn.com';
-        $toEmail = $supervisor->Official_Email;
+        $toEmail = 'sabbir@artisanbn.com';
+        // $toEmail = $supervisor->Official_Email;
         $name = $leave->Full_Name;
         $eid = $leave->Employee_Id;
         $designation = $leave->designation;

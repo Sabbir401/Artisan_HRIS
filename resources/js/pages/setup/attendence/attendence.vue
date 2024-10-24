@@ -1,6 +1,23 @@
 <template>
     <div>
-        <div class="row d-flex justify-content-between">
+        <div class="row d-flex justify-content-start">
+            <div class="col-lg-2 mb-3">
+                <label for="">Select a Year</label>
+                <select
+                    class="form-control"
+                    name="status"
+                    v-model="selectedYear"
+                    @change="generateDays"
+                >
+                    <option
+                        v-for="(year, index) in years"
+                        :key="year"
+                        :value="year"
+                    >
+                        {{ year }}
+                    </option>
+                </select>
+            </div>
             <div class="col-lg-2 mb-3">
                 <label for="">Select a Month</label>
                 <select
@@ -18,11 +35,11 @@
                     </option>
                 </select>
             </div>
+            <div class="col-lg-2 mt-4">
+                <button class="custom-btn btn-13 px-2 py-1"><i class="fa-solid fa-filter"></i></button>
+            </div>
         </div>
         <div>
-            <button class="custom-btn btn-15 mb-3">
-                Save Data
-            </button>
             <div v-if="loading" class="overlay-loading">
                 <div class="loader"></div>
             </div>
@@ -52,6 +69,7 @@ registerAllModules();
 
 const daysInMonth = ref([]);
 const selectedMonth = ref(new Date().getMonth());
+const selectedYear = ref(new Date().getFullYear());
 const employee = ref([]);
 const hotTableComponent = ref(null);
 const loading = ref(true);
@@ -70,8 +88,20 @@ const months = ref([
     "December",
 ]);
 
+const years = ref([
+    "2022",
+    "2023",
+    "2024",
+    "2025",
+    "2026",
+    "2027",
+    "2028",
+    "2029",
+    "2030",
+]);
+
 const generateDays = () => {
-    const year = new Date().getFullYear();
+    const year = selectedYear.value;
     const month = selectedMonth.value;
     const days = new Date(year, month + 1, 0).getDate();
 
@@ -166,7 +196,10 @@ const getData = async () => {
     try {
         const response = await api.get("/emp-attendence");
         const responseData = await api.get("/attendence", {
-            params: { month: selectedMonth.value },
+            params: { 
+                month: selectedMonth.value,
+                year: selectedYear.value
+            },
         });
 
         employee.value = response.data.map((emp) => {
